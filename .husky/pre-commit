@@ -1,7 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# npx pretty-quick --staged && yarn lint
-# git add .
-# git commit -m "--"
-# git branch -M main
+npx pretty-quick --staged && yarn lint
