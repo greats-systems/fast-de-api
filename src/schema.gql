@@ -2,35 +2,326 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateRideInput {
+  """
+  amount field (placeholder)
+  """
+  amount: String!
+
+  """
+  customer field (placeholder)
+  """
+  customerId: String!
+
+  """
+  Dropoff field (placeholder)
+  """
+  destination: DestinationInput
+
+  """
+  distance field (placeholder)
+  """
+  distance: String!
+
+  """
+  estimatedDuration field (placeholder)
+  """
+  estimatedDuration: String!
+
+  """
+  Pickup field (placeholder)
+  """
+  origin: OriginInput
+
+  """
+  rideType field (placeholder)
+  """
+  rideType: String!
+}
+
 input CreateUserInput {
   """
-  Example field (placeholder)
+  first name of the user
   """
-  exampleField: Int!
+  firstName: String!
+
+  """
+  last name of the user
+  """
+  lastName: String!
+
+  """
+  password of the user
+  """
+  password: String!
+
+  """
+  phone of the user
+  """
+  phone: String!
+
+  """
+  role of the user
+  """
+  role: String!
+}
+
+input DestinationInput {
+  """
+  address field
+  """
+  address: String!
+
+  """
+  latitude field
+  """
+  latitude: Float!
+
+  """
+  longitude field
+  """
+  longitude: Float!
+}
+
+type DestinationType {
+  """
+  address field
+  """
+  address: String!
+
+  """
+  latitude field
+  """
+  latitude: Float!
+
+  """
+  locationID field (placeholder)
+  """
+  locationID: String!
+
+  """
+  longitude field
+  """
+  longitude: Float!
+}
+
+type LoggedUserOutput {
+  """
+  Generated access_token of the user
+  """
+  access_token: String!
+}
+
+input LoginUserInput {
+  """
+  password of the user
+  """
+  password: String!
+
+  """
+  phone of the user
+  """
+  phone: String!
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
-  removeUser(id: Int!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
+  createRide(createRideInput: CreateRideInput!): Ride!
+  createUser(createUserInput: CreateUserInput!): UserType!
+  loginUser(loginUserInput: LoginUserInput!): LoggedUserOutput!
+  removeRide(id: String!): Ride!
+  removeUser(userId: String!): UserType!
+  updateRide(updateRideInput: UpdateRideInput!): Ride!
+  updateUser(updateUserInput: UpdateUserInput!): UserType!
+}
+
+input OriginInput {
+  """
+  address field
+  """
+  address: String!
+
+  """
+  latitude field
+  """
+  latitude: Float!
+
+  """
+  longitude field
+  """
+  longitude: Float!
+}
+
+type OriginType {
+  """
+  address field
+  """
+  address: String!
+
+  """
+  latitude field
+  """
+  latitude: Float!
+
+  """
+  locationID field (placeholder)
+  """
+  locationID: String!
+
+  """
+  longitude field
+  """
+  longitude: Float!
 }
 
 type Query {
-  user(id: Int!): User!
-  users: [User!]!
+  getAllRides: [Ride!]!
+  getRide(rideID: String!): Ride!
+  getUser(userId: String!): UserType!
+  getUserProfile: UserType!
+  users: [UserType!]!
+}
+
+type Ride {
+  """
+  amount field (placeholder)
+  """
+  amount: String!
+  customer: UserType!
+
+  """
+  customer field (placeholder)
+  """
+  customerId: String!
+
+  """
+  Dropoff field (placeholder)
+  """
+  destination: DestinationType
+
+  """
+  distance field (placeholder)
+  """
+  distance: String!
+
+  """
+  estimatedDuration field (placeholder)
+  """
+  estimatedDuration: String!
+
+  """
+  Pickup field (placeholder)
+  """
+  origin: OriginType
+
+  """
+  Example field (placeholder)
+  """
+  rideID: String!
+
+  """
+  rideType field (placeholder)
+  """
+  rideType: String!
+}
+
+type Subscription {
+  newRideRequest: Ride!
+}
+
+input UpdateRideInput {
+  """
+  amount field (placeholder)
+  """
+  amount: String
+
+  """
+  customer field (placeholder)
+  """
+  customerId: String
+
+  """
+  Dropoff field (placeholder)
+  """
+  destination: DestinationInput
+
+  """
+  distance field (placeholder)
+  """
+  distance: String
+
+  """
+  estimatedDuration field (placeholder)
+  """
+  estimatedDuration: String
+
+  """
+  Pickup field (placeholder)
+  """
+  origin: OriginInput
+  rideID: String!
+
+  """
+  rideType field (placeholder)
+  """
+  rideType: String
 }
 
 input UpdateUserInput {
   """
-  Example field (placeholder)
+  first name of the user
   """
-  exampleField: Int
-  id: Int!
+  firstName: String!
+
+  """
+  last name of the user
+  """
+  lastName: String!
+
+  """
+  password of the user
+  """
+  password: String!
+
+  """
+  phone of the user
+  """
+  phone: String!
+
+  """
+  role of the user
+  """
+  role: String!
+
+  """
+  id of the user
+  """
+  userId: String!
 }
 
-type User {
+type UserType {
   """
-  Example field (placeholder)
+  first name of the user
   """
-  exampleField: Int!
+  firstName: String!
+
+  """
+  last name of the user
+  """
+  lastName: String!
+
+  """
+  phone of the user
+  """
+  phone: String!
+  rides: [Ride!]
+
+  """
+  role of the user
+  """
+  role: String!
+
+  """
+  id of the user
+  """
+  userId: String!
 }
