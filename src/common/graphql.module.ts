@@ -20,6 +20,8 @@ import { Context } from 'apollo-server-core';
 
             console.log('connectionParams extra');
             console.log(connectionParams);
+            console.log('extra');
+            console.log(extra);
             extra.user = { user: {} };
           },
         },

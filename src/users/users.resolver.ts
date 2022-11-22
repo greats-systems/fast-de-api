@@ -6,6 +6,8 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { LoggedUserOutput } from './dto/logged-user.output';
 import { LoginUserInput } from './dto/login-user.input';
 import { Request } from 'express';
+import { UserProfileInput } from './dto/user-profile.input';
+
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
@@ -26,12 +28,12 @@ export class UsersResolver {
   }
 
   @Query(() => User, { name: 'getUserProfile' })
-  getUserProfile(@Context('req') req) {
-    const token = req.headers.authorization;
-    console.log('createRideInput token');
-    console.log(token);
-    return this.usersService.getUserProfile(token);
+  getUserProfile(@Args('userProfileInput') userProfileInput: UserProfileInput) {
+    console.log('getUserProfile token');
+    console.log(userProfileInput)
+    return this.usersService.getUserProfile(userProfileInput.token);
   }
+
   @Mutation(() => User)
   updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
     return this.usersService.update(updateUserInput.userId, updateUserInput);
