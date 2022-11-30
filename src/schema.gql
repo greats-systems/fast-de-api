@@ -2,26 +2,46 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input CreateRideInput {
-  """amount field (placeholder)"""
-  amount: String!
-
-  """customer field (placeholder)"""
+input AcceptRideInput {
+  """customer field"""
   customerId: String!
 
-  """Dropoff field (placeholder)"""
-  destination: DestinationInput
-
-  """distance field (placeholder)"""
+  """distance field"""
   distance: String!
 
-  """estimatedDuration field (placeholder)"""
+  """driver field"""
+  driverId: String!
+
+  """Driver Current location"""
+  driver_origin: OriginInput
+
+  """estimatedDuration field"""
   estimatedDuration: String!
 
-  """Pickup field (placeholder)"""
+  """ride field"""
+  rideId: String!
+}
+
+input CreateRideInput {
+  """amount field"""
+  amount: String!
+
+  """customer field"""
+  customerId: String!
+
+  """Dropoff field"""
+  destination: DestinationInput
+
+  """distance field"""
+  distance: String!
+
+  """estimatedDuration field"""
+  estimatedDuration: String!
+
+  """Pickup field"""
   origin: OriginInput
 
-  """rideType field (placeholder)"""
+  """rideType field"""
   rideType: String!
 }
 
@@ -81,6 +101,7 @@ input LoginUserInput {
 }
 
 type Mutation {
+  acceptRide(acceptRideInput: AcceptRideInput!): Trip!
   createRide(createRideInput: CreateRideInput!): Ride!
   createUser(createUserInput: CreateUserInput!): UserType!
   loginUser(loginUserInput: LoginUserInput!): LoggedUserOutput!
@@ -124,29 +145,29 @@ type Query {
 }
 
 type Ride {
-  """amount field (placeholder)"""
+  """amount field"""
   amount: String!
   customer: UserType!
 
-  """customer field (placeholder)"""
+  """customer field"""
   customerId: String!
 
-  """Dropoff field (placeholder)"""
+  """Dropoff field"""
   destination: DestinationType
 
-  """distance field (placeholder)"""
+  """distance field"""
   distance: String!
 
-  """estimatedDuration field (placeholder)"""
+  """estimatedDuration field"""
   estimatedDuration: String!
 
-  """Pickup field (placeholder)"""
+  """Pickup field"""
   origin: OriginType
 
-  """Example field (placeholder)"""
+  """Example field"""
   rideID: String!
 
-  """rideType field (placeholder)"""
+  """rideType field"""
   rideType: String!
 }
 
@@ -154,27 +175,48 @@ type Subscription {
   newRideRequest: Ride!
 }
 
+type Trip {
+  customer: UserType!
+
+  """distance field"""
+  distance: String!
+  driver: UserType!
+
+  """Driver Initial location"""
+  driver_origin: OriginType
+
+  """estimatedDuration field"""
+  estimatedDuration: String!
+
+  """ride ID field"""
+  rideId: String!
+
+  """RideService field"""
+  rideServiceID: String!
+  ride_request: Ride
+}
+
 input UpdateRideInput {
-  """amount field (placeholder)"""
+  """amount field"""
   amount: String
 
-  """customer field (placeholder)"""
+  """customer field"""
   customerId: String
 
-  """Dropoff field (placeholder)"""
+  """Dropoff field"""
   destination: DestinationInput
 
-  """distance field (placeholder)"""
+  """distance field"""
   distance: String
 
-  """estimatedDuration field (placeholder)"""
+  """estimatedDuration field"""
   estimatedDuration: String
 
-  """Pickup field (placeholder)"""
+  """Pickup field"""
   origin: OriginInput
   rideID: String!
 
-  """rideType field (placeholder)"""
+  """rideType field"""
   rideType: String
 }
 

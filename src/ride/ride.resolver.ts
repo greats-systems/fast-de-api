@@ -11,10 +11,11 @@ import {
 } from '@nestjs/graphql';
 import { RideService } from './ride.service';
 import { Ride } from './entities/ride.entity';
-import { CreateRideInput } from './dto/create-ride.input';
+import { AcceptRideInput, CreateRideInput } from './dto/create-ride.input';
 import { UpdateRideInput } from './dto/update-ride.input';
 import { Request } from 'express';
 import { User } from 'src/users/entities/user.entity';
+import { Trip } from './entities/trip.entity';
 
 @Resolver(() => Ride)
 export class RideResolver {
@@ -29,6 +30,16 @@ export class RideResolver {
     const token = req.headers.authorization;
     const newRideRequest = this.rideService.createRide(createRideInput);
     return newRideRequest;
+  }
+  @Mutation(() => Trip)
+  async acceptRide(
+    @Args('acceptRideInput') acceptRideInput: AcceptRideInput,
+    @Context('req') req,
+  ) {
+    console.log('req.headers.authorization ');
+    const token = req.headers.authorization;
+    const acceptedRideRequest = this.rideService.driverAcceptRideRequest(acceptRideInput);
+    return acceptedRideRequest;
   }
 
   @Query(() => [Ride], { name: 'getAllRides' })

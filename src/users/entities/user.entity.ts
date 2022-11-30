@@ -27,7 +27,7 @@ export class User {
   @Field((type) => [Ride], { nullable: true })
   rides?: Ride[];
 }
-
+ 
 @InputType('UserInput')
 @ObjectType('UserInputType')
 export class UserInput {

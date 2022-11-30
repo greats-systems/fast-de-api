@@ -12,19 +12,19 @@ import {
 @InputType()
 export class CreateRideInput {
   @Column()
-  @Field((type) => String, { description: 'customer field (placeholder)' })
+  @Field((type) => String, { description: 'customer field' })
   customerId: string;
   @Column()
-  @Field(() => String, { description: 'amount field (placeholder)' })
+  @Field(() => String, { description: 'amount field' })
   amount: string;
   @Column()
-  @Field(() => String, { description: 'rideType field (placeholder)' })
+  @Field(() => String, { description: 'rideType field' })
   rideType: string;
   @Column()
-  @Field(() => String, { description: 'distance field (placeholder)' })
+  @Field(() => String, { description: 'distance field' })
   distance: string;
   @Column()
-  @Field(() => String, { description: 'estimatedDuration field (placeholder)' })
+  @Field(() => String, { description: 'estimatedDuration field' })
   estimatedDuration: string;
 
   // ORIGIN
@@ -35,7 +35,7 @@ export class CreateRideInput {
   @JoinColumn()
   @Field(() => OriginInput, {
     nullable: true,
-    description: 'Pickup field (placeholder)',
+    description: 'Pickup field',
   })
   origin: OriginInput;
 
@@ -47,7 +47,38 @@ export class CreateRideInput {
   @JoinColumn()
   @Field(() => DestinationInput, {
     nullable: true,
-    description: 'Dropoff field (placeholder)',
+    description: 'Dropoff field',
   })
   destination: DestinationInput;
+}
+
+
+@InputType()
+export class AcceptRideInput {
+  @Column()
+  @Field((type) => String, { description: 'ride field' })
+  rideId: string;
+  @Column()
+  @Field((type) => String, { description: 'driver field' })
+  driverId: string;
+  @Column()
+  @Field((type) => String, { description: 'customer field' })
+  customerId: string;
+  @Column()
+  @Field(() => String, { description: 'distance field' })
+  distance: string;
+  @Column()
+  @Field(() => String, { description: 'estimatedDuration field' })
+  estimatedDuration: string;
+  // ORIGIN
+  @OneToOne(() => Origin, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  @Field(() => OriginInput, {
+    nullable: true,
+    description: 'Driver Current location',
+  })
+  driver_origin: OriginInput;
 }

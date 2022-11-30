@@ -9,13 +9,14 @@ import { UsersModule } from 'src/users/users.module';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { Destination, Origin } from './entities/coordinates.entity';
+import { Trip } from './entities/trip.entity';
 
 @Module({
   imports: [
     NotificationsModule,
     UsersModule,
     CommonModule,
-    TypeOrmModule.forFeature([Ride, Origin, Destination]),
+    TypeOrmModule.forFeature([Ride, Origin, Destination, Trip]),
   ],
   providers: [
     RideResolver,

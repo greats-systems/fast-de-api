@@ -19,7 +19,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -c fapi -n ",
+    "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run -c fapi",
+    "migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert -c fapi",
+    "typeorm": "typeorm-ts-node-commonjs"
+
   },
   "dependencies": {
     "@nestjs/apollo": "^10.1.4",

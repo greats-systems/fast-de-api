@@ -1,13 +1,15 @@
 const { Expo } = require('expo-server-sdk');
 
-const sendPushNotification = async (targetExpoPushToken, message) => {
+const sendPushNotification = async (targetExpoPushToken, message, category) => {
   const expo = new Expo();
   const chunks = expo.chunkPushNotifications([
     {
       to: targetExpoPushToken,
       sound: 'default',
       body: message,
-      title: 'newRideRequest',
+      data: message,
+      title: category.title,
+      categoryID: category.id,
       subtitle: 'Open Call',
     },
   ]);

@@ -18,17 +18,36 @@ export class NotificationsService {
   ) {}
 
   async create(createExpoPushTokenDto: CreateExpoPushTokenDto) {
+    console.log('ExpoPushTokenDto')
+    console.log(createExpoPushTokenDto)
+    
     const userId = createExpoPushTokenDto.userId;
     let response: string;
     const token = await this.notificationsRepository.findOne({
       where: { userId: userId },
     });
-    console.log('old Push Token');
-    console.log(token);
+    console.log('Known device Push Token');
+    console.log('old expoPushToken');
+    console.log(createExpoPushTokenDto.expoPushToken);
+
+    console.log('new expoPushToken');
+    console.log(token.expoPushToken);
 
     if (token) {
       response = `Push Token for ${userId} exist`;
-    } else {
+    }
+    if (token.expoPushToken !== createExpoPushTokenDto.expoPushToken) {
+      console.log('updating Push Token ....');
+      await this.notificationsRepository.createQueryBuilder('users')
+      .delete()
+      .from(Notifications)
+      .where("userId = :userId", { userId: createExpoPushTokenDto.userId })
+      .execute()
+      const savedToken = await this.notificationsRepository.save(
+        createExpoPushTokenDto,
+      );
+      response = `Push Token ${savedToken} for ${userId} updated`;
+    }else {
       const savedToken = await this.notificationsRepository.save(
         createExpoPushTokenDto,
       );
