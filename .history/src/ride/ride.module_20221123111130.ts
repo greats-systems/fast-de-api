@@ -8,7 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { UsersModule } from 'src/users/users.module';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
-import { Destination, Location, Origin } from './entities/coordinates.entity';
+import { Destination, Origin } from './entities/coordinates.entity';
 import { Trip } from './entities/trip.entity';
 
 @Module({
@@ -16,7 +16,7 @@ import { Trip } from './entities/trip.entity';
     NotificationsModule,
     UsersModule,
     CommonModule,
-    TypeOrmModule.forFeature([Ride,Location, Origin, Destination, Trip]),
+    TypeOrmModule.forFeature([Ride, Origin, Destination, Trip]),
   ],
   providers: [
     RideResolver,

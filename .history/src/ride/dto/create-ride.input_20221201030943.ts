@@ -5,7 +5,6 @@ import {
   Coordinates,
   Destination,
   DestinationInput,
-  Location,
   LocationInput,
   Origin,
   OriginInput,
@@ -74,7 +73,7 @@ export class AcceptRideInput {
   estimatedDuration: string;
 
   //Driver ORIGIN
-  @OneToOne(() => Location, {
+  @OneToOne(() => Origin, {
     eager: true,
     cascade: true,
   })
@@ -86,7 +85,7 @@ export class AcceptRideInput {
   driver_origin: LocationInput;
 
     // CUSTOMER ORIGIN
-    @OneToOne(() => Location, {
+    @OneToOne(() => Origin, {
       eager: true,
       cascade: true,
     })

@@ -102,7 +102,7 @@ export class RideService {
     if (Expo.isExpoPushToken(pushToken)) {
       console.log('send PushNotification for  saved Trip');
       let category = {
-        type: 'accept',
+        id: 'accept',
         title: 'driver Ride Accept'
       }
       savedTrip['notificationCategory'] = category

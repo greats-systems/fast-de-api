@@ -7,7 +7,7 @@ const sendPushNotification = async (targetExpoPushToken, message, category) => {
       to: targetExpoPushToken,
       sound: 'default',
       body: message,
-      // data: message,
+      data: message,
       title: category.title,
       subtitle: 'Open Call',
     },

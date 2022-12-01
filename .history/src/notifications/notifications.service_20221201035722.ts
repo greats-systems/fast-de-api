@@ -34,14 +34,8 @@ export class NotificationsService {
 
     if (token) {
       response = `Push Token for ${userId} exist`;
-    }else {
-      await this.notificationsRepository.save(
-        createExpoPushTokenDto,
-      );
-      response = `Push Token for ${userId} successfully added`;
     }
-
-    if (token !== null && token.expoPushToken !== createExpoPushTokenDto.expoPushToken) {
+    if (token.expoPushToken !== createExpoPushTokenDto.expoPushToken) {
       console.log('updating Push Token ....');
       await this.notificationsRepository.createQueryBuilder('users')
       .delete()
@@ -52,15 +46,12 @@ export class NotificationsService {
         createExpoPushTokenDto,
       );
       response = `Push Token ${savedToken} for ${userId} updated`;
-      console.log('new expoPushToken');
-      console.log(token.expoPushToken);
+    }else {
+      const savedToken = await this.notificationsRepository.save(
+        createExpoPushTokenDto,
+      );
+      response = `Push Token for ${userId} successfully added`;
     }
-    // else {
-    //   const savedToken = await this.notificationsRepository.save(
-    //     createExpoPushTokenDto,
-    //   );
-    //   response = `Push Token for ${userId} successfully added`;
-    // }
 
     return response;
   }

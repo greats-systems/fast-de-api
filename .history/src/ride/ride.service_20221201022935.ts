@@ -36,7 +36,10 @@ export class RideService {
     return pubSub.asyncIterator('newRideRequest');
   }
   async createRide(createRideInput: CreateRideInput) {
-
+    let category = {
+      id: 'request',
+      title: 'driver Ride Request'
+    }
     // const customer = this.userService.getUserProfile()
     console.log('create Ride Request');
     const createRide = this.rideRepository.create(createRideInput);
@@ -62,11 +65,6 @@ export class RideService {
 
     if (Expo.isExpoPushToken(pushToken)) {
       console.log('send PushNotification for  Ride Request');
-      let category = {
-        type: 'request',
-        title: 'driver Ride Request'
-      }
-      savedRide['notificationCategory'] = category
       const message = JSON.stringify(savedRide);
       await sendPushNotification(pushToken, message, category);
     }
@@ -76,6 +74,12 @@ export class RideService {
   }
   async driverAcceptRideRequest(acceptRideInput: AcceptRideInput) {
     // const customer = this.userService.getUserProfile()
+    let category = {
+      id: 'accept',
+      title: 'driver Ride Accept'
+    }
+
+
     console.log('accept Ride Request');
     const acceptedRideInput = acceptRideInput
     console.log(acceptRideInput)
@@ -101,11 +105,7 @@ export class RideService {
 
     if (Expo.isExpoPushToken(pushToken)) {
       console.log('send PushNotification for  saved Trip');
-      let category = {
-        type: 'accept',
-        title: 'driver Ride Accept'
-      }
-      savedTrip['notificationCategory'] = category
+      savedTrip['categoryID'] =
       const message = JSON.stringify(savedTrip);
       await sendPushNotification(pushToken, message, category);
     }

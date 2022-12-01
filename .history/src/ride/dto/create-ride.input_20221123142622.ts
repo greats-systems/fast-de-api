@@ -5,8 +5,6 @@ import {
   Coordinates,
   Destination,
   DestinationInput,
-  Location,
-  LocationInput,
   Origin,
   OriginInput,
 } from '../entities/coordinates.entity';
@@ -72,28 +70,15 @@ export class AcceptRideInput {
   @Column()
   @Field(() => String, { description: 'estimatedDuration field' })
   estimatedDuration: string;
-
-  //Driver ORIGIN
-  @OneToOne(() => Location, {
+  // ORIGIN
+  @OneToOne(() => Origin, {
     eager: true,
     cascade: true,
   })
   @JoinColumn()
-  @Field(() => LocationInput, {
+  @Field(() => OriginInput, {
     nullable: true,
     description: 'Driver Current location',
   })
-  driver_origin: LocationInput;
-
-    // CUSTOMER ORIGIN
-    @OneToOne(() => Location, {
-      eager: true,
-      cascade: true,
-    })
-    @JoinColumn()
-    @Field(() => LocationInput, {
-      nullable: true,
-      description: 'Customer pickup location',
-    })
-    customer_origin: LocationInput;
+  driver_origin: OriginInput;
 }

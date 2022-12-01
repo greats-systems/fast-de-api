@@ -26,9 +26,13 @@ export class Trip {
   @Column()
   @Field((type) => String, { description: 'distance field' })
   distance: string;
+  
+
   @Column()
   @Field((type) => String, { description: 'estimatedDuration field' })
   estimatedDuration: string;
+
+
   @OneToOne(() => Ride)
   @Field(() => Ride, { nullable: true })
   @JoinColumn({ name:'rideId'})
@@ -43,26 +47,27 @@ export class Trip {
   driver: User;
 
     //DRIVER  ORIGIN
-   @OneToOne(() => Location, {
+   @OneToOne(() => Location {
       eager: true,
       cascade: true,
     })
     @JoinColumn()
-    @Field(() => Location, {
+    @Field(() => Location {
       nullable: true,
       description: 'Driver Initial location',
     })
-    driver_origin: Location;
-    // CUSTOMER ORIGIN
-   @OneToOne(() => Location, {
+    driver_origin: Origin;
+
+        // CUSTOMER ORIGIN
+   @OneToOne(() => Location {
     eager: true,
     cascade: true,
   })
   @JoinColumn()
-  @Field(() => Location, {
+  @Field(() => Location {
     nullable: true,
-    description: 'Customer pickup location',
+    description: 'Driver Initial location',
   })
-  customer_origin: Location;
+  customer_origin: Origin;
 
 }

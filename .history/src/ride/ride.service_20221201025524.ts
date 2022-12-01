@@ -101,10 +101,6 @@ export class RideService {
 
     if (Expo.isExpoPushToken(pushToken)) {
       console.log('send PushNotification for  saved Trip');
-      let category = {
-        type: 'accept',
-        title: 'driver Ride Accept'
-      }
       savedTrip['notificationCategory'] = category
       const message = JSON.stringify(savedTrip);
       await sendPushNotification(pushToken, message, category);

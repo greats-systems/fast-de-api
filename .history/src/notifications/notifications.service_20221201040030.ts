@@ -54,13 +54,12 @@ export class NotificationsService {
       response = `Push Token ${savedToken} for ${userId} updated`;
       console.log('new expoPushToken');
       console.log(token.expoPushToken);
+    }else {
+      const savedToken = await this.notificationsRepository.save(
+        createExpoPushTokenDto,
+      );
+      response = `Push Token for ${userId} successfully added`;
     }
-    // else {
-    //   const savedToken = await this.notificationsRepository.save(
-    //     createExpoPushTokenDto,
-    //   );
-    //   response = `Push Token for ${userId} successfully added`;
-    // }
 
     return response;
   }

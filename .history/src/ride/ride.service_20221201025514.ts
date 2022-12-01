@@ -76,6 +76,12 @@ export class RideService {
   }
   async driverAcceptRideRequest(acceptRideInput: AcceptRideInput) {
     // const customer = this.userService.getUserProfile()
+    let category = {
+      id: 'accept',
+      title: 'driver Ride Accept'
+    }
+
+
     console.log('accept Ride Request');
     const acceptedRideInput = acceptRideInput
     console.log(acceptRideInput)
@@ -101,10 +107,6 @@ export class RideService {
 
     if (Expo.isExpoPushToken(pushToken)) {
       console.log('send PushNotification for  saved Trip');
-      let category = {
-        type: 'accept',
-        title: 'driver Ride Accept'
-      }
       savedTrip['notificationCategory'] = category
       const message = JSON.stringify(savedTrip);
       await sendPushNotification(pushToken, message, category);

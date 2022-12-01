@@ -6,6 +6,9 @@ input AcceptRideInput {
   """customer field"""
   customerId: String!
 
+  """Customer pickup location"""
+  customer_origin: LocationInput
+
   """distance field"""
   distance: String!
 
@@ -13,7 +16,7 @@ input AcceptRideInput {
   driverId: String!
 
   """Driver Current location"""
-  driver_origin: OriginInput
+  driver_origin: LocationInput
 
   """estimatedDuration field"""
   estimatedDuration: String!
@@ -76,6 +79,37 @@ input DestinationInput {
 type DestinationType {
   """address field"""
   address: String!
+
+  """latitude field"""
+  latitude: Float!
+
+  """locationID field (placeholder)"""
+  locationID: String!
+
+  """longitude field"""
+  longitude: Float!
+}
+
+input LocationInput {
+  """address field"""
+  address: String!
+
+  """category of either pickup or destination field"""
+  category: String!
+
+  """latitude field"""
+  latitude: Float!
+
+  """longitude field"""
+  longitude: Float!
+}
+
+type LocationType {
+  """address field"""
+  address: String!
+
+  """category of either pickup or destination field"""
+  category: String!
 
   """latitude field"""
   latitude: Float!
@@ -178,12 +212,15 @@ type Subscription {
 type Trip {
   customer: UserType!
 
+  """Customer pickup location"""
+  customer_origin: LocationType
+
   """distance field"""
   distance: String!
   driver: UserType!
 
   """Driver Initial location"""
-  driver_origin: OriginType
+  driver_origin: LocationType
 
   """estimatedDuration field"""
   estimatedDuration: String!

@@ -61,7 +61,7 @@ export class Trip {
   @JoinColumn()
   @Field(() => Location, {
     nullable: true,
-    description: 'Customer pickup location',
+    description: 'Customer pickup Initial location',
   })
   customer_origin: Location;
 

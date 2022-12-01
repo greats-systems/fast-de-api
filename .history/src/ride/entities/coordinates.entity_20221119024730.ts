@@ -2,43 +2,6 @@ import { ObjectType, InputType, Field, Int, Float } from '@nestjs/graphql';
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Ride } from './ride.entity';
 
-
-
-@Entity()
-@ObjectType('LocationType')
-export class Location {
-  @PrimaryGeneratedColumn('uuid')
-  @Field(() => String, { description: 'locationID field (placeholder)' })
-  locationID: string;
-
-  @OneToOne(() => Ride, (ride: Ride) => ride.origin)
-  public ride: Ride;
-
-  @Field(() => Float, { description: 'latitude field' })
-  latitude: number;
-  @Field(() => Float, { description: 'longitude field' })
-  longitude: number;
-  @Field(() => String, { description: 'address field' })
-  address: string;
-
-  @Field(() => String, { description: 'category of either pickup or destination field' })
-  category: string;
-}
-@InputType('LocationInput')
-@ObjectType('LocationInputType')
-export class LocationInput {
-  @OneToOne(() => Ride, (ride: Ride) => ride.destination)
-  public ride: Ride;
-  @Field(() => Float, { description: 'latitude field' })
-  latitude: number;
-  @Field(() => Float, { description: 'longitude field' })
-  longitude: number;
-  @Field(() => String, { description: 'address field' })
-  address: string;
-  @Field(() => String, { description: 'category of either pickup or destination field' })
-  category: string;
-}
-
 @InputType('CoordinatesInput')
 @ObjectType('CoordinatesType')
 @Entity()
@@ -84,7 +47,6 @@ export class Destination {
   @Field(() => String, { description: 'address field' })
   address: string;
 }
-
 
 @InputType('OriginInput')
 @ObjectType('OriginInputType')

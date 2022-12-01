@@ -9,7 +9,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Coordinates, Destination, Location, Origin } from './coordinates.entity';
+import { Coordinates, Destination, Origin } from './coordinates.entity';
 import { Ride } from './ride.entity';
 
 @Entity()
@@ -26,9 +26,13 @@ export class Trip {
   @Column()
   @Field((type) => String, { description: 'distance field' })
   distance: string;
+  
+
   @Column()
   @Field((type) => String, { description: 'estimatedDuration field' })
   estimatedDuration: string;
+
+
   @OneToOne(() => Ride)
   @Field(() => Ride, { nullable: true })
   @JoinColumn({ name:'rideId'})
@@ -42,27 +46,16 @@ export class Trip {
   @Field((type) => User)
   driver: User;
 
-    //DRIVER  ORIGIN
-   @OneToOne(() => Location, {
+    // ORIGIN
+   @OneToOne(() => Origin, {
       eager: true,
       cascade: true,
     })
     @JoinColumn()
-    @Field(() => Location, {
+    @Field(() => Origin, {
       nullable: true,
       description: 'Driver Initial location',
     })
-    driver_origin: Location;
-    // CUSTOMER ORIGIN
-   @OneToOne(() => Location, {
-    eager: true,
-    cascade: true,
-  })
-  @JoinColumn()
-  @Field(() => Location, {
-    nullable: true,
-    description: 'Customer pickup location',
-  })
-  customer_origin: Location;
+    driver_origin: Origin;
 
 }

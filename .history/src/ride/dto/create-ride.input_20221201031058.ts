@@ -86,7 +86,7 @@ export class AcceptRideInput {
   driver_origin: LocationInput;
 
     // CUSTOMER ORIGIN
-    @OneToOne(() => Location, {
+    @OneToOne(() => Origin, {
       eager: true,
       cascade: true,
     })

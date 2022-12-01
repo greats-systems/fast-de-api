@@ -35,8 +35,7 @@ export class LocationInput {
   longitude: number;
   @Field(() => String, { description: 'address field' })
   address: string;
-  @Field(() => String, { description: 'category of either pickup or destination field' })
-  category: string;
+  
 }
 
 @InputType('CoordinatesInput')
