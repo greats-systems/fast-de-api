@@ -30,14 +30,14 @@ export class ClientService {
       pin:pin,
     }
     var newLogin = await this.loginClientPhone(loginData)
-    console.log('newLogin')
-    console.log(newLogin)
-    
     let response = {
       client,
       newLogin,
     }
+    console.log(createClientDto.phone)
+
     return response;
+
   }
 
   async loginClientPhone(loginUserInput: LoginUserInput) {
@@ -114,7 +114,7 @@ export class ClientService {
     return clients;
   }
 
-  async updateClientProfile(
+  async update(
     clientId: string,
     updateClientInput: UpdateClientDTO,
   ): Promise<Client> {

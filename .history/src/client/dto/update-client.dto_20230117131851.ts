@@ -11,6 +11,8 @@ export class UpdateClientDTO extends PartialType(CreateClientDto) {
   lastName: string;
   @Field(() => String, { description: 'phone of the user' })
   phone: string;
+  @Field(() => String, { description: 'password of the user' })
+  password: string;
   @Field(() => String, { description: 'role of the user' })
   role: string;
 }

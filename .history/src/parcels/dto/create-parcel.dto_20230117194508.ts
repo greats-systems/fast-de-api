@@ -1,0 +1,21 @@
+import { Field } from "@nestjs/graphql";
+
+export class CreateParcelDto {
+    
+  packageTypeInfo: string;
+  packageDetailInfo: string;
+  packagePickupInfo: string;
+  packageDeliveryInfo: string;
+  confirmDetail: string;
+  loadMap: string;
+  packageHeight: string;
+  packageWidth: string;
+  packageDepth: string;
+  packageWeight: string;
+  pickUpAddress: string;
+  deliveryAddress: string;
+  addressType: string;
+  exactPickupAddress: string;
+  exactDeliveryAddress: string;
+
+}

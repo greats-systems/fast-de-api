@@ -25,19 +25,18 @@ export class ClientService {
 
     const clientSchema = this.clientRepository.create(createClientDto);
     const client = await this.clientRepository.save(clientSchema);
+    console.log(createClientDto.phone)
     let loginData = {
       phone:createClientDto.phone,
       pin:pin,
     }
     var newLogin = await this.loginClientPhone(loginData)
-    console.log('newLogin')
-    console.log(newLogin)
-    
     let response = {
       client,
       newLogin,
     }
     return response;
+
   }
 
   async loginClientPhone(loginUserInput: LoginUserInput) {
@@ -114,7 +113,7 @@ export class ClientService {
     return clients;
   }
 
-  async updateClientProfile(
+  async update(
     clientId: string,
     updateClientInput: UpdateClientDTO,
   ): Promise<Client> {

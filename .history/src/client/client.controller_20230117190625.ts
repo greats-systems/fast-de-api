@@ -25,12 +25,12 @@ export class ClientController {
   }
 
 
-  @Post('updateClientProfile')
-  updateClientProfile(@Body() clientId, updateClientDTO: UpdateClientDTO) {
-    return this.clientService.updateClientProfile(clientId, updateClientDTO);
+  @Post('verifyClientOTP')
+  loginClientOTP(@Body() loginUserInput: LoginUserInput) {
+    return this.clientService.loginClientPhone(loginUserInput);
   }
 
-  @Get()
+  @Get()updateClientProfile
   findAll() {
     return this.clientService.findAll();
   }

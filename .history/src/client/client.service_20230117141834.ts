@@ -38,6 +38,7 @@ export class ClientService {
       newLogin,
     }
     return response;
+
   }
 
   async loginClientPhone(loginUserInput: LoginUserInput) {
@@ -114,7 +115,7 @@ export class ClientService {
     return clients;
   }
 
-  async updateClientProfile(
+  async update(
     clientId: string,
     updateClientInput: UpdateClientDTO,
   ): Promise<Client> {

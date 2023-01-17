@@ -26,7 +26,7 @@ export class ClientController {
 
 
   @Post('updateClientProfile')
-  updateClientProfile(@Body() clientId, updateClientDTO: UpdateClientDTO) {
+  updateClientProfile(@Body() clientId updateClientDTO: UpdateClientDTO) {
     return this.clientService.updateClientProfile(clientId, updateClientDTO);
   }
 

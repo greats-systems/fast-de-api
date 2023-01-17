@@ -27,10 +27,8 @@ export class AuthService {
 
   async validateClient(phone: string, pin: string): Promise<any> {
     console.log('validateClient')
+    console.log(pin)
     const client = await this.clientService.findOneByPhone(phone);
-    console.log('validated Client')
-    console.log(client)
-    
     if (client) {
       if (await bcrypt.compare(pin, client.pin)) {
         delete client.pin;

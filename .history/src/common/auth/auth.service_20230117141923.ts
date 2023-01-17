@@ -26,9 +26,8 @@ export class AuthService {
   }
 
   async validateClient(phone: string, pin: string): Promise<any> {
-    console.log('validateClient')
+    console.log('validatedClient')
     const client = await this.clientService.findOneByPhone(phone);
-    console.log('validated Client')
     console.log(client)
     
     if (client) {

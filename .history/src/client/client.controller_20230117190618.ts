@@ -24,13 +24,7 @@ export class ClientController {
     return this.clientService.loginClientPhone(loginUserInput);
   }
 
-
-  @Post('updateClientProfile')
-  updateClientProfile(@Body() clientId, updateClientDTO: UpdateClientDTO) {
-    return this.clientService.updateClientProfile(clientId, updateClientDTO);
-  }
-
-  @Get()
+  @Get()updateClientProfile
   findAll() {
     return this.clientService.findAll();
   }

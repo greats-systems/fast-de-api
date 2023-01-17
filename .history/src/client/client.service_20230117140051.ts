@@ -25,19 +25,23 @@ export class ClientService {
 
     const clientSchema = this.clientRepository.create(createClientDto);
     const client = await this.clientRepository.save(clientSchema);
+    console.log(client);
+    console.log('pin')
+    console.log(pin)
+    console.log('phone')
+    console.log(createClientDto.phone)
     let loginData = {
       phone:createClientDto.phone,
       pin:pin,
     }
-    var newLogin = await this.loginClientPhone(loginData)
-    console.log('newLogin')
-    console.log(newLogin)
-    
+    var getNewClient = this.fin(loginData)
+    var newLogin = this.loginClientPhone(loginData)
     let response = {
       client,
       newLogin,
     }
     return response;
+
   }
 
   async loginClientPhone(loginUserInput: LoginUserInput) {
@@ -100,7 +104,6 @@ export class ClientService {
 
   async findOneByPhone(phone: string): Promise<Client> {
     const client = await this.clientRepository.findOne({ where: { phone: phone } });
-    
     if (!client) {  
       throw new NotFoundException(`Client #${phone} not found`);
     }
@@ -114,7 +117,7 @@ export class ClientService {
     return clients;
   }
 
-  async updateClientProfile(
+  async update(
     clientId: string,
     updateClientInput: UpdateClientDTO,
   ): Promise<Client> {
