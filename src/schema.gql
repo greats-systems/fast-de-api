@@ -90,6 +90,27 @@ type DestinationType {
   longitude: Float!
 }
 
+type Driver {
+  """id of the user"""
+  driverId: String!
+
+  """firstName of the user"""
+  firstName: String!
+
+  """firstName of the user"""
+  lastName: String!
+
+  """phone of the user"""
+  phone: String!
+
+  """lastName of the user"""
+  pin: String!
+  rides: [Ride!]
+
+  """role of the user"""
+  role: String!
+}
+
 input LocationInput {
   """address field"""
   address: String!
@@ -191,6 +212,7 @@ type Ride {
 
   """distance field"""
   distance: String!
+  driver: Driver!
 
   """estimatedDuration field"""
   estimatedDuration: String!
