@@ -25,6 +25,20 @@ input AcceptRideInput {
   rideId: String!
 }
 
+input CreateMobileUserDTO {
+  """app of the user"""
+  app: String!
+
+  """phone of the user"""
+  phone: String!
+
+  """password of the user"""
+  pin: String!
+
+  """role of the user"""
+  role: String!
+}
+
 input CreateRideInput {
   """amount field"""
   amount: String!
@@ -46,23 +60,6 @@ input CreateRideInput {
 
   """rideType field"""
   rideType: String!
-}
-
-input CreateUserInput {
-  """first name of the user"""
-  firstName: String!
-
-  """last name of the user"""
-  lastName: String!
-
-  """password of the user"""
-  password: String!
-
-  """phone of the user"""
-  phone: String!
-
-  """role of the user"""
-  role: String!
 }
 
 input DestinationInput {
@@ -147,7 +144,7 @@ type LoggedUserOutput {
   access_token: String!
 }
 
-input LoginUserInput {
+input LoginUserDTO {
   """password of the user"""
   password: String!
 
@@ -158,8 +155,8 @@ input LoginUserInput {
 type Mutation {
   acceptRide(acceptRideInput: AcceptRideInput!): Trip!
   createRide(createRideInput: CreateRideInput!): Ride!
-  createUser(createUserInput: CreateUserInput!): UserType!
-  loginUser(loginUserInput: LoginUserInput!): LoggedUserOutput!
+  createUser(createMobileUserDTO: CreateMobileUserDTO!): UserType!
+  loginUser(loginUserDTO: LoginUserDTO!): LoggedUserOutput!
   removeRide(id: String!): Ride!
   removeUser(userId: String!): UserType!
   updateRide(updateRideInput: UpdateRideInput!): Ride!
@@ -280,6 +277,9 @@ input UpdateRideInput {
 }
 
 input UpdateUserInput {
+  """app of the user"""
+  app: String
+
   """first name of the user"""
   firstName: String!
 
@@ -291,6 +291,9 @@ input UpdateUserInput {
 
   """phone of the user"""
   phone: String!
+
+  """password of the user"""
+  pin: String
 
   """role of the user"""
   role: String!
