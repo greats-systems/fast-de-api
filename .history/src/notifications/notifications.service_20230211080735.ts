@@ -79,6 +79,7 @@ export class NotificationsService {
         `Token  for user with id ${phone} not found`,
       );
     }
+
     return token.expoPushToken;
   }
 

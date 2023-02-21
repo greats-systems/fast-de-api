@@ -69,6 +69,7 @@ export class NotificationsService {
 
   async getExpoPushToken(phone: string) {
     console.log(`get user ${phone}  stored pushToken`);
+
     const token = await this.notificationsRepository.findOne({
       where: { phone: phone },
     });
@@ -79,6 +80,7 @@ export class NotificationsService {
         `Token  for user with id ${phone} not found`,
       );
     }
+
     return token.expoPushToken;
   }
 
