@@ -1,0 +1,33 @@
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { UsersService } from 'src/users/users.service';
+import { Repository } from 'typeorm';
+import { RejectOrderDto } from './dto/reject-parcel.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateParcelDto } from './dto/create-parcel.dto';
+import { ProcessOrderlDto } from './dto/process-order.dto';
+import { UpdateParcelDto } from './dto/update-parcel.dto';
+import { Order } from './entities/order.entity';
+import { Parcel } from './entities/parcel.entity';
+import { UpdateOrderDto } from './dto/update-order.dto';
+export declare class ParcelsService {
+    private readonly parcelRepository;
+    private readonly orderRepository;
+    private readonly userService;
+    private readonly notificationsService;
+    constructor(parcelRepository: Repository<Parcel>, orderRepository: Repository<Order>, userService: UsersService, notificationsService: NotificationsService);
+    createOrder(createOrderDto: CreateOrderDto): Promise<Order>;
+    getOrdersHistory(userPhone: string): Promise<Array<Order>>;
+    getOrdersByUser(userId: string, userRole: string): Promise<Array<Order>>;
+    getAllOrders(): Promise<Array<Order>>;
+    create(createParcelDto: CreateParcelDto): Promise<Parcel>;
+    runDelivery(orderID: string, status: string): Promise<Order>;
+    updateOrder(orderID: string, updateOrderDto: UpdateOrderDto): Promise<Order>;
+    processOrder(processOrderDTO: ProcessOrderlDto): Promise<Order>;
+    driverOrderReject(rejectParcelDto: RejectOrderDto): Promise<any>;
+    findOneByOrderID(orderID: string): Promise<Order>;
+    findOneByPackageID(packageID: string): Promise<Parcel>;
+    updateParcel(packageID: string, updateParcelDto: UpdateParcelDto): Promise<Parcel>;
+    findAll(): string;
+    findOne(id: number): string;
+    remove(id: number): string;
+}

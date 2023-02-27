@@ -34,6 +34,20 @@ export class UsersService {
     return user;
   }
 
+  async loginUser(loginUserDTO: LoginUserDTO) {
+    const user = await this.authService.validateUser(
+      loginUserDTO.phone,
+      loginUserDTO.password
+    );
+    if (!user) {
+      throw new BadRequestException(`phone or password are invalid`);
+    } else {
+      return this.authService.generateUserCredentials(user);
+    }
+  }  
+
+
+// CLIENT SERVICES
   async loginMobileUser(loginUserDTO: LoginMobileUserDTO) {
     const user = await this.authService.validateUser(
       loginUserDTO.phone,
@@ -46,66 +60,20 @@ export class UsersService {
     }
   }
 
-  async loginUser(loginUserDTO: LoginUserDTO) {
-    const user = await this.authService.validateUser(
-      loginUserDTO.phone,
-      loginUserDTO.password
-    );
-    if (!user) {
-      throw new BadRequestException(`phone or password are invalid`);
-    } else {
-      return this.authService.generateUserCredentials(user);
+  async getAllClients(): Promise<Array<User>> {
+    let clients = await this.userRepository.find({ where: { role: 'client' } })
+    
+    if(!clients) {
+      throw new NotFoundException(`Clients not found`);
+    }else{
+      console.log('clients')
+      console.log(clients)
     }
-  }
-  // get all entity objects
-  async findAll(): Promise<Array<User>> {
-    return await this.userRepository.find();
+    return clients;
   }
 
-  async findOne(userId: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { userId: userId },
-    });
-    if (!user) {
-      throw new NotFoundException(`User #${userId} not found`);
-    }
-    return user;
-  }
 
-  async getUserProfile(token: string): Promise<User> {
-    const decodedser = await this.authService.decodeUserToken(token);
-    let user;
-    if (decodedser) {
-      user = await this.userRepository.findOne({
-        where: { userId: decodedser.sub },
-      });
-      console.log('getUserProfile');
-      console.log(decodedser.sub);
-    } else {
-      throw new NotFoundException(`User token #${token} not valid`);
-    }
-
-    if (!user) {
-      throw new NotFoundException(`User #${decodedser.sub} not found`);
-    }
-    return user;
-  }
-
-  async findOneByPhone(phone: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { phone: phone } });    
-    if (!user || user === null) {
-      throw new NotFoundException(`User #${phone} not found`);
-    }
-    return user;
-  }
-
-  async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { email: email } });    
-    if (!user || user === null) {
-      throw new NotFoundException(`User with ${email} not found`);
-    }
-    return user;
-  }
+// DRIVER SERVICES
 
   async getDrivers(userIds: Array<{}>): Promise<Array<User>> {
     console.log('userIds')
@@ -127,7 +95,6 @@ export class UsersService {
 
   async getAllDrivers(): Promise<Array<User>> {
     let users = await this.userRepository.find({ where: { role: 'driver' } })
-    
     if(!users) {
       throw new NotFoundException(`Drivers not found`);
     }else{
@@ -135,6 +102,9 @@ export class UsersService {
     }
     return users;
   }
+
+
+  // GENERIC USERS SERVICE
 
   async getAllUsers(): Promise<Array<User>> {
     let users = await this.userRepository.find({ where: { role: 'admin' } })
@@ -147,16 +117,6 @@ export class UsersService {
     return users;
   }
 
-  async getAllClients(): Promise<Array<User>> {
-    let users = await this.userRepository.find({ where: { role: 'client' } })
-    
-    if(!users) {
-      throw new NotFoundException(`Drivers not found`);
-    }else{
-      console.log(users)
-    }
-    return users;
-  }
 
   async update(
     userId: string,
@@ -173,8 +133,81 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
+    // get all entity objects
+    async findAll(): Promise<Array<User>> {
+      return await this.userRepository.find();
+    }
+  
+    async getUserByID(userId: string): Promise<User> {
+      console.log('getUserByID userId')
+      console.log(userId)
+
+      const user = await this.userRepository.findOne({
+        where: { userId: userId },
+      });
+
+      console.log('getUserByID user')
+      console.log(user)
+      // if (!user) {
+      //   throw new NotFoundException(`User #${userId} not found`);
+      // }
+      if(user) {
+        delete user.pin
+        delete user.password
+  
+        return user;
+      }
+      return null
+
+    }
+    async findOne(userId: string): Promise<User> {
+      const user = await this.userRepository.findOne({
+        where: { userId: userId },
+      });
+      if (!user) {
+        throw new NotFoundException(`User #${userId} not found`);
+      }
+      return user;
+    }
+    
+    async getUserProfile(token: string): Promise<User> {
+      const decodedser = await this.authService.decodeUserToken(token);
+      let user;
+      if (decodedser) {
+        user = await this.userRepository.findOne({
+          where: { userId: decodedser.sub },
+        });
+        console.log('getUserProfile');
+        console.log(decodedser.sub);
+      } else {
+        throw new NotFoundException(`User token #${token} not valid`);
+      }
+  
+      if (!user) {
+        throw new NotFoundException(`User #${decodedser.sub} not found`);
+      }
+      return user;
+    }
+  
+    async findOneByPhone(phone: string): Promise<User> {
+      const user = await this.userRepository.findOne({ where: { phone: phone } });    
+      if (!user || user === null) {
+        throw new NotFoundException(`User #${phone} not found`);
+      }
+      return user;
+    }
+  
+    async findOneByEmail(email: string): Promise<User> {
+      const user = await this.userRepository.findOne({ where: { email: email } });    
+      if (!user || user === null) {
+        throw new NotFoundException(`User with ${email} not found`);
+      }
+      return user;
+    }
+
+
   async remove(userId: string): Promise<User> {
-    const user = await this.findOne(userId);
+    const user = await this.getUserByID(userId);
     await this.userRepository.remove(user);
     return {
       userId: userId,

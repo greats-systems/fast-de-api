@@ -6,13 +6,15 @@ export class Order {
     @PrimaryGeneratedColumn('uuid')
     orderID: string;
     @Column({nullable: true})
-    packageID: string;
+    orderParcelID: string;
     @Column({nullable: true})
     orderDate: string;
     @Column({nullable: true})
     orderType: string;
     @Column({nullable: true})
     orderPaymentMethod: string;
+    @Column({nullable: true})
+    orderPaymentStatus: string;    
     @Column({nullable: true})
     orderCountry: string;
     
@@ -38,13 +40,13 @@ export class Order {
     @Column({nullable: true})
     orderPickupTime: string;
     @Column({nullable: true})
-    orderPickupDistance: string;
+    orderPickupDistance: string; 
     @Column({nullable: true})
     orderPickupCoordinates: string;
 
     // Delivery Data
     @Column()
-    DeliveryStatus: string;
+    orderStatus: string;
     @Column({nullable: true})
     orderDeliveryCoordinates: string;
     @Column({nullable: true})

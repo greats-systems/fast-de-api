@@ -5,12 +5,14 @@ import { UpdateDriverDTO } from 'src/driver/dto/update-driver.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { AcceptRejectParcelDto } from './dto/accpet-reject-parcel.dto';
+import { RejectOrderDto } from './dto/reject-parcel.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateParcelDto } from './dto/create-parcel.dto';
+import { ProcessOrderlDto } from './dto/process-order.dto';
 import { UpdateParcelDto } from './dto/update-parcel.dto';
 import { Order } from './entities/order.entity';
 import { Parcel } from './entities/parcel.entity';
+import { UpdateOrderDto } from './dto/update-order.dto';
 const { Expo } = require('expo-server-sdk');
 const sendPushNotification = require('../../utilities/pushNotifications');
 const driverDepartingPickupDistance = require('../../utilities/geolocation');
@@ -34,8 +36,57 @@ export class ParcelsService {
     const order = await this.orderRepository.save(orderSchema);
     return order
     
-  }  
- 
+  } 
+  
+  
+  async getOrdersHistory(userPhone: string): Promise<Array<Order>>{
+    const user = await this.userService.findOneByPhone(userPhone)
+
+    if(user.role === 'client'){
+      const orders = await this.orderRepository.find(
+        {
+          where: { orderOwnerID: user.userId, orderStatus: 'delivered' },
+        }
+      );
+      return orders
+    }
+
+    if(user.role === 'driver'){
+      const orders = await this.orderRepository.find(
+        {
+          where: { orderDriverID: user.userId, orderStatus: 'delivered' },
+        }
+      );
+      return orders
+    }
+
+    return []
+  }
+
+
+  async getOrdersByUser(userId: string, userRole: string): Promise<Array<Order>>{
+    if(userRole === 'client'){
+      const orders = await this.orderRepository.find(
+        {
+          where: { orderOwnerID: userId },
+        }
+      );
+      return orders
+    }
+
+    if(userRole === 'driver'){
+      const orders = await this.orderRepository.find(
+        {
+          where: { orderDriverID: userId },
+        }
+      );
+      return orders
+    }
+
+    return []
+  }
+
+
   async getAllOrders(): Promise<Array<Order>>{
     const orders = await this.orderRepository.find();
     return orders
@@ -81,17 +132,67 @@ export class ParcelsService {
     return parcel;
   }
 
+  async runDelivery(orderID: string, status: string): Promise<Order> {
+    console.log('orderID');
+    console.log(orderID);
 
-  async acceptReject(acceptRejectParcelDto: AcceptRejectParcelDto){
-    console.log('acceptReject() packageID id')
-    console.log(acceptRejectParcelDto.packageID)
+    let order = await this.findOneByOrderID(orderID)
+    console.log('order');
+    console.log(order);
+    order['orderStatus'] = status
+    let updatedOrder = await this.updateOrder(orderID, order)
+
+    console.log('updatedOrder');
+    console.log(updatedOrder);
+    const orderOwner = await this.userService.findOne((await order).orderOwnerID)
+    console.log('orderOwner');
+    console.log(orderOwner);
+    console.log((await orderOwner).phone);
+    const orderOwnerPhone = (await orderOwner).phone;
+    let pushToken: string;
+    console.log('get ExpoPushToken value');
+    console.log(pushToken);
+    await this.notificationsService.getExpoPushToken(orderOwnerPhone).then((value) => {
+      console.log('value');
+      console.log(value);
+      pushToken = value;
+    });
+    
+    updatedOrder['orderDriverCoordinates'] = JSON.parse(updatedOrder.orderDriverCoordinates)
+    updatedOrder['orderPickupCoordinates'] = JSON.parse(updatedOrder.orderPickupCoordinates)
+    updatedOrder['orderDeliveryCoordinates'] = JSON.parse(updatedOrder.orderDeliveryCoordinates)
+
+    if (Expo.isExpoPushToken(pushToken)) {
+      console.log('send PushNotification');
+      let category = {
+        type: 'order',
+        title: `order ${status} notification`
+      }
+      updatedOrder['notificationCategory'] = category
+      const message = JSON.stringify(updatedOrder);
+      await sendPushNotification(pushToken, message, category);
+    }
+    return updatedOrder;
+  }
 
 
-    if(acceptRejectParcelDto.driverDecision === 'accept'){
+  async updateOrder(orderID: string,updateOrderDto: UpdateOrderDto,): Promise<Order> {
+    const order = await this.orderRepository.preload({
+      orderID: orderID,
+      ...updateOrderDto,
+    });
+
+    if (!order) {
+      throw new NotFoundException(`User #${orderID} not found`);
+    }
+    return this.orderRepository.save(order);
+  }
+
+  async processOrder(processOrderDTO: ProcessOrderlDto){
     console.log('driver accepted')
-    console.log(acceptRejectParcelDto)
+    console.log(processOrderDTO)
 
-      let parcel = await this.findOneByPackageID(acceptRejectParcelDto.packageID)
+      let parcel = await this.findOneByPackageID(processOrderDTO.packageID)
       const parcelOwner = await this.userService.findOne((await parcel).packageOwnerID)
 
       console.log('parcelOwner');
@@ -110,27 +211,26 @@ export class ParcelsService {
   
       console.log('Got driver pushToken');
       console.log(pushToken);
-      const acceptingDriver = await this.userService.findOneByPhone(acceptRejectParcelDto.driverPhone)
+      const acceptingDriver = await this.userService.findOneByPhone(processOrderDTO.driverPhone)
       console.log(acceptingDriver);
       (parcel).packageDriverID = acceptingDriver.userId
 
       if (Expo.isExpoPushToken(pushToken)) {
         console.log('send PushNotification for  Parcel Accept');
 
-        console.log('parcel dto');
-        console.log(parcel);
         // driver current coords
         const LATITUDE = 37.78825;
         const LONGITUDE = -122.4324;
 
-        parcel = await this.updateParcel(acceptRejectParcelDto.packageID, parcel)
+        parcel = await this.updateParcel(processOrderDTO.packageID, parcel)
         let countryCode = acceptingDriver.phone.slice(0,3)
 
         let newOrder  = {
           //order
-          packageID: parcel.packageID,
+          orderParcelID: parcel.packageID,
           orderDate: Date.now().toString(),
           orderType: parcel.packageType,
+          orderPaymentStatus: 'not-paid',
           orderPaymentMethod: parcel.paymentMethod === null ? 'cash on delivery' : parcel.paymentMethod,
           orderCountry: countryCode && countryCode === '+26' ? 'zw' : 'za',
 
@@ -138,7 +238,7 @@ export class ParcelsService {
           orderDriverID: parcel.packageDriverID,
           orderDriverFirstName: acceptingDriver.firstName,
           orderDriverLastName: acceptingDriver.lastName,
-          orderDriverCoordinates: acceptRejectParcelDto.driverCoordinates,
+          orderDriverCoordinates: JSON.parse(processOrderDTO.driverCoordinates),
 
           //order client
           orderOwnerID: parcelOwner.userId,
@@ -146,37 +246,46 @@ export class ParcelsService {
           orderOwnerLastName: parcelOwner.lastName,
                         
           //Pickup Data
-          orderPickupTime: acceptRejectParcelDto.orderPickupTime,
-          orderPickupCoordinates: parcel.exactPickupCoordinates,
+          orderPickupTime: processOrderDTO.orderPickupTime,
+          orderPickupCoordinates: JSON.parse(parcel.exactPickupCoordinates) ,
           orderPickupAddress: parcel.exactPickupAddress,
-          orderPickupDistance: acceptRejectParcelDto.packagePickupDistance,
+          orderPickupDistance: processOrderDTO.packagePickupDistance,
 
           //Delivery Data
           orderDeliveryDistance: parcel.packageDeliveryDistance,
-          orderDeliveryCoordinates: parcel.exactDeliveryCoordinates,
+          orderDeliveryCoordinates: JSON.parse(parcel.exactDeliveryCoordinates),
           orderDeliveryAddress: parcel.exactDeliveryAddress,
-          orderDeliveryFee: parcel.packageDeliveryFee,
+          orderDeliveryFee: parcel.packageDeliveryFee, 
 
           // from generated now
-          DeliveryStatus: 'pickup',
+          orderStatus: 'accepted',
 
         }
 
         console.log(newOrder)
         let order = await this.createOrder(newOrder)
+
+
+        console.log('new order');
+        console.log(order);
         let category = {
           type: 'accept',
-          title: 'driver Parcel Accept'
+          title: 'Delivery Order Created'
         }
         order['notificationCategory'] = category
         const message = JSON.stringify(order);
         await sendPushNotification(pushToken, message, category);
+        
+        return order
       }
-    }
+  }
 
-    if(acceptRejectParcelDto.driverDecision === 'reject'){
+
+  async driverOrderReject(rejectParcelDto: RejectOrderDto){
+    // Find New Driver
+
     console.log('driver rejected')
-      const rejectingDriver = this.userService.findOneByPhone(acceptRejectParcelDto.driverPhone)
+      const rejectingDriver = this.userService.findOne(rejectParcelDto.driverID)
       let driverID = (await rejectingDriver).userId
       let rejectedDriverIds : Array<string> = Array(driverID,);
 
@@ -196,7 +305,7 @@ export class ParcelsService {
       });
       console.log('Got driver pushToken');
       console.log(pushToken);
-      const parcel = this.findOneByPackageID(acceptRejectParcelDto.packageID)
+      const parcel = this.findOneByPackageID(rejectParcelDto.packageID)
 
       if (Expo.isExpoPushToken(pushToken)) {
         console.log('send PushNotification for  Parcel Accept');
@@ -208,12 +317,24 @@ export class ParcelsService {
         const message = JSON.stringify(parcel);
         await sendPushNotification(pushToken, message, category);
       }
-    }
-    return 'success';
+
+    return null;
   }
 
 
+  async findOneByOrderID(orderID: string): Promise<Order> {
+    console.log('User orderID')
+    console.log(orderID)
 
+    const order = await this.orderRepository.findOne({ where: { orderID: orderID } });
+    console.log('order')
+    console.log(order)
+    
+    if (!order) {
+      throw new NotFoundException(`User #${orderID} not found`);
+    }
+    return order;
+  }
 
   async findOneByPackageID(packageID: string): Promise<Parcel> {
     console.log('User packageID')

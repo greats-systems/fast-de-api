@@ -1,35 +1,29 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    @Post('getUserByID')
+    getUserByID(@Body() data) {
+        console.log('getUserByID')
+        console.log(data)
+        return this.usersService.getUserByID(data.userID);
+    }
     @Get()
-    getUser() {
+    getUsers() {
         console.log('getting users')
-        let users = this.usersService.getAllUsers()
-        console.log('users')
-        console.log(users)
-        return users;
+        return this.usersService.getAllUsers();
     }
-    
-    @Get('getDrivers')
+    @Get('getDriversList')
     getAllDrivers() {
-      console.log('getting drivers')
-      let drivers = this.usersService.getAllDrivers()
-      console.log('drivers')
-      console.log(drivers)
-      return drivers;
+      return this.usersService.getAllDrivers();
     }
     
-    @Get('getAllClients')
+    @Get('getClientsList')
     getAllClients() {
-      console.log('getting clients')
-      let clients = this.usersService.getAllClients()
-      console.log('clients')
-      console.log(clients)
-      return clients;
+      return this.usersService.getAllClients();
     }    
   
 }

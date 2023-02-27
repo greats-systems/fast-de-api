@@ -4,13 +4,15 @@ import { Column } from "typeorm";
 export class CreateOrderDto {
     // Order 
     @Column({nullable: true})
-    packageID: string;
+    orderParcelID: string;
     @Column({nullable: true})
     orderDate: string;
     @Column({nullable: true})
     orderType: string;
     @Column({nullable: true})
     orderPaymentMethod: string;
+    @Column({nullable: true})
+    orderPaymentStatus: string;    
     @Column({nullable: true})
     orderCountry: string;
     
@@ -41,12 +43,13 @@ export class CreateOrderDto {
     orderPickupCoordinates: string;
 
     // Delivery Data
-    @Column()
-    DeliveryStatus: string;
+    @Column({nullable: true})
+    orderStatus: string;
     @Column({nullable: true})
     orderDeliveryCoordinates: string;
     @Column({nullable: true})
     orderDeliveryDistance: string;
-    @Column()
+    @Column({nullable: true})
     orderDeliveryFee: string;
+
 }

@@ -19,25 +19,43 @@ export class ParcelsController {
     return this.parcelsService.create(data.data);
   }
 
-  @Post('acceptreject')
+  @Post('processOrder')
   acceptReject(@Body() data) {
-    console.log('acceptreject data')
+    console.log('processOrder data')
     console.log(data)
-    return this.parcelsService.acceptReject(data.data);
+    return this.parcelsService.processOrder(data.data);
   }
 
+  @Post('runDelivery')
+  runDelivery(@Body() data) {
+    console.log('runDelivery data')
+    console.log(data)
+    return this.parcelsService.runDelivery(data.data.orderID, data.data.status );
+  }
+
+  
+  @Post('getOrdersByUser')
+  getOrdersByUser(@Body() data) {
+    console.log('getOrdersByUser data')
+    console.log(data)
+    return this.parcelsService.getOrdersByUser(data.userID, data.userRole);
+  }
+  @Post('getOrdersHistory')
+  getOrdersHistory(@Body() data) {
+    console.log('getOrdersHistory data')
+    console.log(data)
+    return this.parcelsService.getOrdersHistory(data.userPhone);
+  }
+  
   @Get()
   findAll() {
     return this.parcelsService.findAll();
   }
 
   @Get('getAllOrders')
-  getAllClients() {
+  getAllOrders() {
     console.log('getting orders')
-    let orders = this.parcelsService.getAllOrders()
-    console.log('orders')
-    console.log(orders)
-    return orders;
+    return this.parcelsService.getAllOrders();
   }  
 
   @Get(':id')
