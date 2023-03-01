@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -18,13 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "jest --config ./apps/fast-de-api/test/jest-e2e.json",
     "prepare": "husky install",
     "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -c fapi -n ",
     "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run -c fapi",
     "migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert -c fapi",
     "typeorm": "typeorm-ts-node-commonjs"
-
   },
   "dependencies": {
     "@nestjs/apollo": "^10.1.4",
@@ -36,8 +35,11 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.3.9",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "^9.3.9",
     "@rneui/themed": "^4.0.0-rc.7",
+    "@types/socket.io": "^3.0.2",
     "apollo-server-express": "^3.10.3",
     "chance": "^1.1.9",
     "dotenv": "^16.0.3",
@@ -50,6 +52,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "socket.io": "^4.6.1",
     "ts-morph": "^16.0.0",
     "typeorm": "^0.3.10"
   },
@@ -86,7 +89,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -94,7 +97,10 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/"
+    ]
   }
 }

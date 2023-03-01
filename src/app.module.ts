@@ -15,11 +15,12 @@ import { ParcelsService } from './parcels/parcels.service';
 import { DriverModule } from './driver/driver.module';
 import { DriverService } from './driver/driver.service';
 import { AuthModule } from './common/auth.module';
+import { SocketsGateway } from './sockets/sockets.gateway';
 dotenv.config();
 
 @Module({
   imports: [CommonModule, UsersModule, RideModule, NotificationsModule, ClientModule, DriverModule, ParcelsModule, AuthModule],
   controllers: [AppController],
-  providers: [AppService, JwtService,ClientService,DriverService, AuthService, ParcelsService],
+  providers: [AppService, JwtService,ClientService,DriverService, AuthService, ParcelsService, SocketsGateway],
 })
 export class AppModule {}

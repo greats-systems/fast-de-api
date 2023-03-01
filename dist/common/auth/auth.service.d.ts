@@ -9,6 +9,7 @@ export declare class AuthService {
     private readonly usersService;
     private jwtTokenService;
     constructor(userRepository: Repository<User>, usersService: UsersService, jwtTokenService: JwtService);
+    saveDriverApkLink(link: string): Promise<string>;
     create(createMobileUserDTO: CreateMobileUserDTO): Promise<{
         user: User;
         newLogin: {

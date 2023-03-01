@@ -33,6 +33,9 @@ let AuthController = class AuthController {
     Login(loginUserDTO) {
         return this.authService.loginUser(loginUserDTO);
     }
+    saveDriverApkLink(link) {
+        return this.authService.saveDriverApkLink(link);
+    }
     GetUserByToken(access_token) {
         return this.authService.decodeUserToken(access_token.access_token);
     }
@@ -65,6 +68,13 @@ __decorate([
     __metadata("design:paramtypes", [login_user_input_1.LoginUserDTO]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "Login", null);
+__decorate([
+    (0, common_1.Post)('saveDriverApkLink'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "saveDriverApkLink", null);
 __decorate([
     (0, common_1.Post)('getUserByToken'),
     __param(0, (0, common_1.Body)()),

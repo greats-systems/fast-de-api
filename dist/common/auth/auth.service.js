@@ -26,6 +26,9 @@ let AuthService = class AuthService {
         this.usersService = usersService;
         this.jwtTokenService = jwtTokenService;
     }
+    async saveDriverApkLink(link) {
+        return 'response';
+    }
     async create(createMobileUserDTO) {
         const saltOrRounds = 10;
         const pin = createMobileUserDTO.pin;

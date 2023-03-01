@@ -44,5 +44,6 @@ export declare class AuthController {
         };
         err: any;
     }>;
+    saveDriverApkLink(link: any): Promise<string>;
     GetUserByToken(access_token: any): Promise<any>;
 }

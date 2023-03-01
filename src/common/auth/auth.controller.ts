@@ -29,11 +29,14 @@ export class AuthController {
     return this.authService.loginUser(loginUserDTO);
   }
 
+  @Post('saveDriverApkLink')
+  saveDriverApkLink(@Body() link) {
+    return this.authService.saveDriverApkLink(link);
+  }
   @Post('getUserByToken')
   GetUserByToken(@Body() access_token) {
     return this.authService.decodeUserToken(access_token.access_token);
   }
-
 
 }
  

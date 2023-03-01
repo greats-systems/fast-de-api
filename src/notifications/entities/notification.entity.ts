@@ -20,3 +20,4 @@ export class Notifications {
   @Field((type) => String, { description: ' service type if driver/customer' })
   userRole?: string;
 }
+                 

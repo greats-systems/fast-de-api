@@ -17,6 +17,12 @@ export class AuthService {
     private jwtTokenService: JwtService,
   ) {}
 
+
+  async saveDriverApkLink(link: string) {
+
+    return 'response';
+  }
+
   async create(createMobileUserDTO: CreateMobileUserDTO) {
     const saltOrRounds = 10;
     const pin = createMobileUserDTO.pin;
