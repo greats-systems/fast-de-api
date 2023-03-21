@@ -16,7 +16,7 @@ export class ParcelsController {
   create(@Body() data): Promise<Parcel> {
     console.log('createParcel data')
     console.log(data.data)
-    return this.parcelsService.create(data.data);
+    return this.parcelsService.createParcelDeliveryRequest(data.data);
   }
 
   @Post('processOrder')
@@ -26,12 +26,12 @@ export class ParcelsController {
     return this.parcelsService.processOrder(data.data);
   }
 
-  @Post('runDelivery')
-  runDelivery(@Body() data) {
-    console.log('runDelivery data')
-    console.log(data)
-    return this.parcelsService.runDelivery(data.data.orderID, data.data.status );
-  }
+  // @Post('runDelivery')
+  // runDelivery(@Body() data) {
+  //   console.log('runDelivery data')
+  //   console.log(data)
+  //   return this.parcelsService.runDelivery(data.data.orderID, data.data.status );
+  // }
 
   
   @Post('getOrdersByUser')

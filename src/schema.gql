@@ -25,20 +25,6 @@ input AcceptRideInput {
   rideId: String!
 }
 
-input CreateMobileUserDTO {
-  """app of the user"""
-  app: String!
-
-  """phone of the user"""
-  phone: String!
-
-  """password of the user"""
-  pin: String!
-
-  """role of the user"""
-  role: String!
-}
-
 input CreateRideInput {
   """amount field"""
   amount: String!
@@ -139,28 +125,11 @@ type LocationType {
   longitude: Float!
 }
 
-type LoggedUserOutput {
-  """Generated access_token of the user"""
-  access_token: String!
-}
-
-input LoginUserDTO {
-  """password of the user"""
-  password: String!
-
-  """phone of the user"""
-  phone: String!
-}
-
 type Mutation {
   acceptRide(acceptRideInput: AcceptRideInput!): Trip!
   createRide(createRideInput: CreateRideInput!): Ride!
-  createUser(createMobileUserDTO: CreateMobileUserDTO!): UserType!
-  loginUser(loginUserDTO: LoginUserDTO!): LoggedUserOutput!
   removeRide(id: String!): Ride!
-  removeUser(userId: String!): UserType!
   updateRide(updateRideInput: UpdateRideInput!): Ride!
-  updateUser(updateUserInput: UpdateUserInput!): UserType!
 }
 
 input OriginInput {
@@ -191,9 +160,6 @@ type OriginType {
 type Query {
   getAllRides: [Ride!]!
   getRide(rideID: String!): Ride!
-  getUser(userId: String!): UserType!
-  getUserProfile(userProfileInput: UserProfileInput!): UserType!
-  users: [UserType!]!
 }
 
 type Ride {
@@ -274,37 +240,6 @@ input UpdateRideInput {
 
   """rideType field"""
   rideType: String
-}
-
-input UpdateUserInput {
-  """app of the user"""
-  app: String
-
-  """first name of the user"""
-  firstName: String!
-
-  """last name of the user"""
-  lastName: String!
-
-  """password of the user"""
-  password: String!
-
-  """phone of the user"""
-  phone: String!
-
-  """password of the user"""
-  pin: String
-
-  """role of the user"""
-  role: String!
-
-  """id of the user"""
-  userId: String!
-}
-
-input UserProfileInput {
-  """token of the user"""
-  token: String!
 }
 
 type UserType {

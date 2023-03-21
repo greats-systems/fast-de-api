@@ -12,13 +12,16 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/common/auth/auth.service';
 import { LoginMobileUserDTO, LoginUserDTO } from './dto/login-user.input';
-import { CreateMobileUserDTO } from './dto/create-user.input';
-
+import { CreateMobileUserDTO, GatewayConnectedUserDTO } from './dto/create-user.input';
+import { GatewayConnectedUser } from './entities/gateway.connected.user.entity';
+import { Point, Geometry } from 'geojson'
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(GatewayConnectedUser)
+    private readonly gatewayConnectedUserRepository: Repository<GatewayConnectedUser>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {}
@@ -34,13 +37,100 @@ export class UsersService {
     return user;
   }
 
+  async createGatewayConnectedUser(gatewayConnectedUserDTO: GatewayConnectedUserDTO): Promise<GatewayConnectedUser> {
+    const pointObject_orderDriverCoordinates :Point = {
+      type: "Point",
+      coordinates: [JSON.parse(gatewayConnectedUserDTO.location).longitude, JSON.parse(gatewayConnectedUserDTO.location).latitude]
+    }
+    gatewayConnectedUserDTO.location = pointObject_orderDriverCoordinates
+    const userSchema = this.gatewayConnectedUserRepository.create(gatewayConnectedUserDTO);
+    console.log('create gatewayConnectedUser', userSchema)
+    try {
+    const gatewayConnectedUser = await this.gatewayConnectedUserRepository.save(userSchema);
+    return gatewayConnectedUser;
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+   
+  }
+
+  async update(
+    userId: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    const user = await this.userRepository.preload({
+      userId: userId,
+      ...updateUserInput,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User #${userId} not found`);
+    }
+    return this.userRepository.save(user);
+  }
+
+  async getGatewayConnectedUser(userId: string): Promise<GatewayConnectedUser> {
+    const user = await this.gatewayConnectedUserRepository.findOne({
+      where: { userId: userId },
+    });
+    if (!user) {
+      let foundIdentity = await this.gatewayConnectedUserRepository.findOne({
+        where: { userId: userId },
+      });
+      console.log('foundIdentity')
+      console.log(foundIdentity)
+      return null
+    }
+    return user;
+  }
+  async updateGatewayConnectedUserLocation(userLocation: {userId: string, latitude:number, longitude:number}): Promise<GatewayConnectedUser> {
+
+   const user =  await this.getGatewayConnectedUser(userLocation.userId)
+    const pointObject_location :Point = {
+      type: "Point",
+      coordinates: [userLocation.longitude, userLocation.latitude]
+    }
+    user.location = pointObject_location
+    const gatewayConnectedUser = await this.gatewayConnectedUserRepository.save(user);
+    return gatewayConnectedUser;
+  }
+  
+  async getDriverByRadius(location: Point): Promise<GatewayConnectedUser>{
+    console.log('${location.coordinates[0]}, ${location.coordinates[1]}')
+    console.log(location)
+    const drivers = await this.gatewayConnectedUserRepository.query(
+      `SELECT * , ST_Distance('SRID=4326;POINT(${location.coordinates[0]} ${location.coordinates[1]})'::geometry, location) AS dist FROM gateway_connected_user  WHERE role='driver';`,
+    );
+    const driver = drivers[1]; 
+    console.log('getDriverByRadius driver');
+    console.log(driver);
+    return driver
+  }
+
+  async getGatewayConnectedDriver(userId: string,): Promise<GatewayConnectedUser> {
+    const user = await this.gatewayConnectedUserRepository.findOne({
+      where: { userId: '5cb96dd9-0a44-4433-9b14-7756c317b85b', role: 'driver' },
+    });
+    if (!user) {
+      let foundIdentity = await this.gatewayConnectedUserRepository.findOne({
+        where: { userId: userId },
+      });
+      console.log('foundIdentity')
+      console.log(foundIdentity)
+      throw new NotFoundException(`Driver of id #${userId} not found`);
+    }
+    return user;
+  }
+
   async loginUser(loginUserDTO: LoginUserDTO) {
     const user = await this.authService.validateUser(
-      loginUserDTO.phone,
+      loginUserDTO.email,
       loginUserDTO.password
     );
     if (!user) {
-      throw new BadRequestException(`phone or password are invalid`);
+      throw new BadRequestException(`email or password are invalid`);
     } else {
       return this.authService.generateUserCredentials(user);
     }
@@ -93,6 +183,7 @@ export class UsersService {
     return users;
   }
 
+
   async getAllDrivers(): Promise<Array<User>> {
     let users = await this.userRepository.find({ where: { role: 'driver' } })
     if(!users) {
@@ -118,20 +209,6 @@ export class UsersService {
   }
 
 
-  async update(
-    userId: string,
-    updateUserInput: UpdateUserInput,
-  ): Promise<User> {
-    const user = await this.userRepository.preload({
-      userId: userId,
-      ...updateUserInput,
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User #${userId} not found`);
-    }
-    return this.userRepository.save(user);
-  }
 
     // get all entity objects
     async findAll(): Promise<Array<User>> {
@@ -169,16 +246,20 @@ export class UsersService {
       }
       return user;
     }
+
+
     
     async getUserProfile(token: string): Promise<User> {
+      
       const decodedser = await this.authService.decodeUserToken(token);
       let user;
       if (decodedser) {
+        console.log('decodedser', decodedser)
+
         user = await this.userRepository.findOne({
           where: { userId: decodedser.sub },
         });
-        console.log('getUserProfile');
-        console.log(decodedser.sub);
+
       } else {
         throw new NotFoundException(`User token #${token} not valid`);
       }
@@ -186,8 +267,12 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException(`User #${decodedser.sub} not found`);
       }
+
       return user;
     }
+
+
+
   
     async findOneByPhone(phone: string): Promise<User> {
       const user = await this.userRepository.findOne({ where: { phone: phone } });    

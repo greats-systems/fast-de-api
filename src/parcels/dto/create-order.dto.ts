@@ -1,5 +1,6 @@
 import { Field } from "@nestjs/graphql";
-import { Column } from "typeorm";
+import { Column, Index } from "typeorm";
+import { Point } from 'geojson'
 
 export class CreateOrderDto {
     // Order 
@@ -23,8 +24,13 @@ export class CreateOrderDto {
     orderDriverFirstName: string;
     @Column({nullable: true})
     orderDriverLastName: string;
-    @Column({nullable: true})
-    orderDriverCoordinates: string;
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderDriverCoordinates: Point;
 
     // Client Data
     @Column({nullable: true})
@@ -39,14 +45,24 @@ export class CreateOrderDto {
     orderPickupTime: string;
     @Column({nullable: true})
     orderPickupDistance: string;
-    @Column({nullable: true})
-    orderPickupCoordinates: string;
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderPickupCoordinates: Point;
 
     // Delivery Data
     @Column({nullable: true})
     orderStatus: string;
-    @Column({nullable: true})
-    orderDeliveryCoordinates: string;
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderDeliveryCoordinates: Point;
     @Column({nullable: true})
     orderDeliveryDistance: string;
     @Column({nullable: true})

@@ -64,7 +64,7 @@ let AuthService = class AuthService {
     async loginUser(loginUserInput) {
         console.log('loginUserInput');
         console.log(loginUserInput);
-        const user = await this.validateUser(loginUserInput.phone, loginUserInput.password);
+        const user = await this.validateUser(loginUserInput.email, loginUserInput.password);
         if (!user) {
             console.log('Phone or password are invalid');
             let response = {
@@ -132,10 +132,10 @@ let AuthService = class AuthService {
         }
         return null;
     }
-    async validateUser(phone, password) {
+    async validateUser(email, password) {
         console.log('getting User');
-        console.log(phone);
-        const user = await this.usersService.findOneByPhone(phone);
+        console.log(email);
+        const user = await this.usersService.findOneByEmail(email);
         console.log(user);
         if (user) {
             console.log('User found');

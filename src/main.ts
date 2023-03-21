@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { AuthenticatedSocketAdapter } from './sockets/authenticated-socket.adapter';
 
 import { join } from 'path';
 import { ServerOptions } from 'socket.io';
@@ -31,9 +32,10 @@ async function bootstrap() {
   const port = 3001
   app.useStaticAssets(join(__dirname, '..', 'static'));
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: '*',
   });
   app.useWebSocketAdapter(new SocketAdapter(app));
+  app.useWebSocketAdapter(new AuthenticatedSocketAdapter(app)); // Add our custom socket adapter.
   await app.listen(port);
   // console.log('running on port', listener)
 

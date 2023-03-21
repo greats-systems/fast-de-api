@@ -1,3 +1,4 @@
+import { Point } from 'geojson';
 export declare class Parcel {
     packageID: string;
     packageOwnerID: string;
@@ -10,9 +11,9 @@ export declare class Parcel {
     addressType: string;
     exactPickupAddress: string;
     exactDeliveryAddress: string;
-    exactPickupCoordinates: string;
-    exactDeliveryCoordinates: string;
     packageDeliveryFee: string;
     paymentMethod: string;
     packageDeliveryDistance: string;
+    exactPickupCoordinates: Point;
+    exactDeliveryCoordinates: Point;
 }

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Point } from 'geojson'
 
 @Entity()
 export class Order {
@@ -25,8 +26,14 @@ export class Order {
     orderDriverFirstName: string;
     @Column({nullable: true})
     orderDriverLastName: string;
-    @Column({nullable: true})
-    orderDriverCoordinates: string;
+
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderDriverCoordinates: Point;
 
     // Client Data
     @Column({nullable: true})
@@ -42,15 +49,31 @@ export class Order {
     @Column({nullable: true})
     orderPickupDistance: string; 
     @Column({nullable: true})
-    orderPickupCoordinates: string;
+    orderPickupAddress: string; 
+        @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderPickupCoordinates: Point;
 
     // Delivery Data
     @Column()
     orderStatus: string;
     @Column({nullable: true})
-    orderDeliveryCoordinates: string;
+
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    orderDeliveryCoordinates: Point;
     @Column({nullable: true})
     orderDeliveryDistance: string;
+    @Column({nullable: true})
+    orderDeliveryAddress: string;
     @Column()
     orderDeliveryFee: string;
 

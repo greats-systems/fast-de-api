@@ -8,9 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const typeorm_1 = require("typeorm");
+const geojson_1 = require("geojson");
 let Order = class Order {
 };
 __decorate([
@@ -54,8 +56,14 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "orderDriverLastName", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Index)({ spatial: true }),
+    (0, typeorm_1.Column)({
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    }),
+    __metadata("design:type", typeof (_a = typeof geojson_1.Point !== "undefined" && geojson_1.Point) === "function" ? _a : Object)
 ], Order.prototype, "orderDriverCoordinates", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
@@ -80,6 +88,16 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
+], Order.prototype, "orderPickupAddress", void 0);
+__decorate([
+    (0, typeorm_1.Index)({ spatial: true }),
+    (0, typeorm_1.Column)({
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    }),
+    __metadata("design:type", typeof (_b = typeof geojson_1.Point !== "undefined" && geojson_1.Point) === "function" ? _b : Object)
 ], Order.prototype, "orderPickupCoordinates", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
@@ -87,12 +105,23 @@ __decorate([
 ], Order.prototype, "orderStatus", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Index)({ spatial: true }),
+    (0, typeorm_1.Column)({
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    }),
+    __metadata("design:type", typeof (_c = typeof geojson_1.Point !== "undefined" && geojson_1.Point) === "function" ? _c : Object)
 ], Order.prototype, "orderDeliveryCoordinates", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Order.prototype, "orderDeliveryDistance", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Order.prototype, "orderDeliveryAddress", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)

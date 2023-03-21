@@ -23,17 +23,12 @@ let ParcelsController = class ParcelsController {
     create(data) {
         console.log('createParcel data');
         console.log(data.data);
-        return this.parcelsService.create(data.data);
+        return this.parcelsService.createParcelDeliveryRequest(data.data);
     }
     acceptReject(data) {
         console.log('processOrder data');
         console.log(data);
         return this.parcelsService.processOrder(data.data);
-    }
-    runDelivery(data) {
-        console.log('runDelivery data');
-        console.log(data);
-        return this.parcelsService.runDelivery(data.data.orderID, data.data.status);
     }
     getOrdersByUser(data) {
         console.log('getOrdersByUser data');
@@ -76,13 +71,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], ParcelsController.prototype, "acceptReject", null);
-__decorate([
-    (0, common_1.Post)('runDelivery'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], ParcelsController.prototype, "runDelivery", null);
 __decorate([
     (0, common_1.Post)('getOrdersByUser'),
     __param(0, (0, common_1.Body)()),

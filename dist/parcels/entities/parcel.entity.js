@@ -8,9 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parcel = void 0;
 const typeorm_1 = require("typeorm");
+const geojson_1 = require("geojson");
 let Parcel = class Parcel {
 };
 __decorate([
@@ -60,14 +62,6 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Parcel.prototype, "exactPickupCoordinates", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Parcel.prototype, "exactDeliveryCoordinates", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
 ], Parcel.prototype, "packageDeliveryFee", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
@@ -77,6 +71,26 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Parcel.prototype, "packageDeliveryDistance", void 0);
+__decorate([
+    (0, typeorm_1.Index)({ spatial: true }),
+    (0, typeorm_1.Column)({
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    }),
+    __metadata("design:type", typeof (_a = typeof geojson_1.Point !== "undefined" && geojson_1.Point) === "function" ? _a : Object)
+], Parcel.prototype, "exactPickupCoordinates", void 0);
+__decorate([
+    (0, typeorm_1.Index)({ spatial: true }),
+    (0, typeorm_1.Column)({
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    }),
+    __metadata("design:type", typeof (_b = typeof geojson_1.Point !== "undefined" && geojson_1.Point) === "function" ? _b : Object)
+], Parcel.prototype, "exactDeliveryCoordinates", void 0);
 Parcel = __decorate([
     (0, typeorm_1.Entity)()
 ], Parcel);

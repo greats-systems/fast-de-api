@@ -1,3 +1,4 @@
+import { Point } from 'geojson';
 export declare class CreateMobileUserDTO {
     phone: string;
     pin: string;
@@ -11,4 +12,13 @@ export declare class CreateUserDTO {
     email?: string;
     password: string;
     role: string;
+}
+export declare class GatewayConnectedUserDTO {
+    userId?: string;
+    deviceId?: string;
+    currentSocketID?: string;
+    location?: Point;
+    role?: string;
+    issuedTime?: string;
+    dist?: number;
 }

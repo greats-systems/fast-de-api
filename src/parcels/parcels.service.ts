@@ -4,7 +4,7 @@ import { AuthService } from 'src/common/auth/auth.service';
 import { UpdateDriverDTO } from 'src/driver/dto/update-driver.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
+import { Repository, getManager, QueryBuilder } from 'typeorm';
 import { RejectOrderDto } from './dto/reject-parcel.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateParcelDto } from './dto/create-parcel.dto';
@@ -13,6 +13,11 @@ import { UpdateParcelDto } from './dto/update-parcel.dto';
 import { Order } from './entities/order.entity';
 import { Parcel } from './entities/parcel.entity';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Point, Geometry } from 'geojson'
+
+import {
+  WebSocketServer,
+} from '@nestjs/websockets';
 const { Expo } = require('expo-server-sdk');
 const sendPushNotification = require('../../utilities/pushNotifications');
 const driverDepartingPickupDistance = require('../../utilities/geolocation');
@@ -29,9 +34,32 @@ export class ParcelsService {
 
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
+    
     ) {}
 
   async  createOrder(createOrderDto:CreateOrderDto) : Promise<Order>  {
+    console.log('createOrderDto', createOrderDto)
+    
+    const pointObject_orderDriverCoordinates :Point = {
+      type: "Point",
+      coordinates: [ createOrderDto.orderDriverCoordinates.latitude, createOrderDto.orderDriverCoordinates.longitude]
+    }
+    createOrderDto.orderDriverCoordinates = pointObject_orderDriverCoordinates
+
+    const pointObject_orderPickupCoordinates :Point = {
+      type: "Point",
+      coordinates: [createOrderDto.orderPickupCoordinates.coordinates[0], createOrderDto.orderPickupCoordinates.coordinates[1]]
+    }
+    createOrderDto.orderPickupCoordinates = pointObject_orderPickupCoordinates
+  
+
+    const pointObject_orderDeliveryCoordinates :Point = {
+      type: "Point",
+      coordinates: [createOrderDto.orderDeliveryCoordinates.coordinates[0], createOrderDto.orderDeliveryCoordinates.coordinates[1]]
+    }
+    createOrderDto.orderDeliveryCoordinates = pointObject_orderDeliveryCoordinates
+    
+    console.log('processOrder createOrderDto', createOrderDto);
     const orderSchema = this.orderRepository.create(createOrderDto);
     const order = await this.orderRepository.save(orderSchema);
     return order
@@ -92,89 +120,59 @@ export class ParcelsService {
     return orders
     
   }
-  async create(createParcelDto: CreateParcelDto): Promise<Parcel> {
+  async createParcelDeliveryRequest(createParcelDto: CreateParcelDto): Promise<Parcel> {
     console.log('createParcelDto')
     console.log(createParcelDto)
+    const pointObject_exactPickupCoordinates :Point = {
+      type: "Point",
+      coordinates: [JSON.parse(createParcelDto.exactPickupCoordinates).latitude, JSON.parse(createParcelDto.exactPickupCoordinates).longitude]
+    }
+    createParcelDto.exactPickupCoordinates = pointObject_exactPickupCoordinates
+
+
+    const pointObject_exactDeliveryCoordinates :Point = {
+      type: "Point",
+      coordinates: [JSON.parse(createParcelDto.exactDeliveryCoordinates).latitude, JSON.parse(createParcelDto.exactDeliveryCoordinates).longitude]
+    }
+    createParcelDto.exactDeliveryCoordinates = pointObject_exactDeliveryCoordinates
+    
+    
+    console.log('updated createParcelDto', createParcelDto)
     const parcelSchema = this.parcelRepository.create(createParcelDto);
     const parcel = await this.parcelRepository.save(parcelSchema);
     console.log('new parcel')
     console.log(parcel)
-    let driverID = ''
-    let rejectedDriverIds : Array<string> = Array(driverID,);
-
-    const drivers = await this.userService.getDrivers(rejectedDriverIds);
-    const driver = drivers[0];
-    console.log('driver');
-    console.log(driver.phone);
-    const driverPhone = driver.phone;
-    let pushToken: string;
-    console.log('get ExpoPushToken value');
-    console.log(pushToken);
-
-    await this.notificationsService.getExpoPushToken(driverPhone).then((value) => {
-      console.log('value');
-      console.log(value);
-      pushToken = value;
-    });
-
-    console.log('Got driver pushToken');
-    console.log(pushToken);
-    if (Expo.isExpoPushToken(pushToken)) {
-      console.log('send PushNotification for  Ride Request');
-      let category = {
-        type: 'request',
-        title: 'driver Ride Request'
-      }
-      parcel['notificationCategory'] = category
-      const message = JSON.stringify(parcel);
-      await sendPushNotification(pushToken, message, category);
-    }
     return parcel;
   }
 
-  async runDelivery(orderID: string, status: string): Promise<Order> {
-    console.log('orderID');
-    console.log(orderID);
+  async startPickupTrip(orderID: string, driverCoordinates: string): Promise<any> {
+    console.log('startPickupTrip driverCoordinates')
+    console.log(driverCoordinates)
+    const pointObject_driverCoordinates :Point = {
+      type: "Point",
+      coordinates: [JSON.parse(driverCoordinates).longitude, JSON.parse(driverCoordinates).latitude]
+    }
+
 
     let order = await this.findOneByOrderID(orderID)
-    console.log('order');
-    console.log(order);
-    order['orderStatus'] = status
+    order['orderDriverCoordinates'] = pointObject_driverCoordinates
+    order['orderStatus'] = 'pickup'
     let updatedOrder = await this.updateOrder(orderID, order)
 
     console.log('updatedOrder');
     console.log(updatedOrder);
     const orderOwner = await this.userService.findOne((await order).orderOwnerID)
-    console.log('orderOwner');
-    console.log(orderOwner);
-    console.log((await orderOwner).phone);
-    const orderOwnerPhone = (await orderOwner).phone;
-    let pushToken: string;
-    console.log('get ExpoPushToken value');
-    console.log(pushToken);
-    await this.notificationsService.getExpoPushToken(orderOwnerPhone).then((value) => {
-      console.log('value');
-      console.log(value);
-      pushToken = value;
-    });
-    
-    updatedOrder['orderDriverCoordinates'] = JSON.parse(updatedOrder.orderDriverCoordinates)
-    updatedOrder['orderPickupCoordinates'] = JSON.parse(updatedOrder.orderPickupCoordinates)
-    updatedOrder['orderDeliveryCoordinates'] = JSON.parse(updatedOrder.orderDeliveryCoordinates)
-
-    if (Expo.isExpoPushToken(pushToken)) {
-      console.log('send PushNotification');
-      let category = {
-        type: 'order',
-        title: `order ${status} notification`
-      }
-      updatedOrder['notificationCategory'] = category
-      const message = JSON.stringify(updatedOrder);
-      await sendPushNotification(pushToken, message, category);
+    const orderOwnerPhone = orderOwner.phone;
+    let startPickupTripNotification = {
+    orderDriverCoordinates: updatedOrder.orderDriverCoordinates,
+    orderPickupCoordinates: updatedOrder.orderPickupCoordinates,
+    orderDeliveryCoordinates: updatedOrder.orderDeliveryCoordinates,
+    orderOwnerPhone: orderOwner.phone,
+    orderOwnerID: orderOwner.userId
     }
-    return updatedOrder;
+ 
+    return startPickupTripNotification;
   }
-
 
   async updateOrder(orderID: string,updateOrderDto: UpdateOrderDto,): Promise<Order> {
     const order = await this.orderRepository.preload({
@@ -188,43 +186,18 @@ export class ParcelsService {
     return this.orderRepository.save(order);
   }
 
-  async processOrder(processOrderDTO: ProcessOrderlDto){
-    console.log('driver accepted')
-    console.log(processOrderDTO)
 
+  async processOrder(processOrderDTO: ProcessOrderlDto){
       let parcel = await this.findOneByPackageID(processOrderDTO.packageID)
       const parcelOwner = await this.userService.findOne((await parcel).packageOwnerID)
-
-      console.log('parcelOwner');
-      console.log(parcelOwner);
-      console.log((await parcelOwner).phone);
-      const parcelOwnerPhone = (await parcelOwner).phone;
-      let pushToken: string;
-      console.log('get ExpoPushToken value');
-      console.log(pushToken);
-  
-      await this.notificationsService.getExpoPushToken(parcelOwnerPhone).then((value) => {
-        console.log('value');
-        console.log(value);
-        pushToken = value;
-      });
-  
-      console.log('Got driver pushToken');
-      console.log(pushToken);
       const acceptingDriver = await this.userService.findOneByPhone(processOrderDTO.driverPhone)
-      console.log(acceptingDriver);
+      console.log('acceptingDriver');
       (parcel).packageDriverID = acceptingDriver.userId
 
-      if (Expo.isExpoPushToken(pushToken)) {
-        console.log('send PushNotification for  Parcel Accept');
-
-        // driver current coords
-        const LATITUDE = 37.78825;
-        const LONGITUDE = -122.4324;
-
         parcel = await this.updateParcel(processOrderDTO.packageID, parcel)
-        let countryCode = acceptingDriver.phone.slice(0,3)
+      console.log('processOrder parcel', parcel);
 
+        let countryCode = acceptingDriver.phone.slice(0,3)
         let newOrder  = {
           //order
           orderParcelID: parcel.packageID,
@@ -238,7 +211,7 @@ export class ParcelsService {
           orderDriverID: parcel.packageDriverID,
           orderDriverFirstName: acceptingDriver.firstName,
           orderDriverLastName: acceptingDriver.lastName,
-          orderDriverCoordinates: JSON.parse(processOrderDTO.driverCoordinates),
+          orderDriverCoordinates: processOrderDTO.driverCoordinates,
 
           //order client
           orderOwnerID: parcelOwner.userId,
@@ -247,13 +220,13 @@ export class ParcelsService {
                         
           //Pickup Data
           orderPickupTime: processOrderDTO.orderPickupTime,
-          orderPickupCoordinates: JSON.parse(parcel.exactPickupCoordinates) ,
+          orderPickupCoordinates: parcel.exactPickupCoordinates,
           orderPickupAddress: parcel.exactPickupAddress,
-          orderPickupDistance: processOrderDTO.packagePickupDistance,
+          orderPickupDistance: parcel.exactPickupCoordinates,
 
           //Delivery Data
           orderDeliveryDistance: parcel.packageDeliveryDistance,
-          orderDeliveryCoordinates: JSON.parse(parcel.exactDeliveryCoordinates),
+          orderDeliveryCoordinates: parcel.exactDeliveryCoordinates,
           orderDeliveryAddress: parcel.exactDeliveryAddress,
           orderDeliveryFee: parcel.packageDeliveryFee, 
 
@@ -262,22 +235,9 @@ export class ParcelsService {
 
         }
 
-        console.log(newOrder)
-        let order = await this.createOrder(newOrder)
-
-
-        console.log('new order');
-        console.log(order);
-        let category = {
-          type: 'accept',
-          title: 'Delivery Order Created'
-        }
-        order['notificationCategory'] = category
-        const message = JSON.stringify(order);
-        await sendPushNotification(pushToken, message, category);
-        
+        let order = await this.createOrder(newOrder)        
         return order
-      }
+      
   }
 
 

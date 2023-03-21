@@ -1,3 +1,4 @@
+import { Point } from 'geojson';
 export declare class CreateOrderDto {
     orderParcelID: string;
     orderDate: string;
@@ -8,15 +9,15 @@ export declare class CreateOrderDto {
     orderDriverID: string;
     orderDriverFirstName: string;
     orderDriverLastName: string;
-    orderDriverCoordinates: string;
+    orderDriverCoordinates: Point;
     orderOwnerID: string;
     orderOwnerFirstName: string;
     orderOwnerLastName: string;
     orderPickupTime: string;
     orderPickupDistance: string;
-    orderPickupCoordinates: string;
+    orderPickupCoordinates: Point;
     orderStatus: string;
-    orderDeliveryCoordinates: string;
+    orderDeliveryCoordinates: Point;
     orderDeliveryDistance: string;
     orderDeliveryFee: string;
 }

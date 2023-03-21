@@ -51,7 +51,7 @@ export declare class AuthService {
         err: any;
     }>;
     validateMobileUser(phone: string, pin: string): Promise<any>;
-    validateUser(phone: string, password: string): Promise<any>;
+    validateUser(email: string, password: string): Promise<any>;
     decodeUserToken(token: string): Promise<any>;
     generateUserCredentials(user: User): Promise<{
         access_token: string;

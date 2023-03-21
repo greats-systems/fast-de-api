@@ -8,6 +8,8 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { UsersService } from 'src/users/users.service';
 import { CommonModule } from 'src/common/common.module';
 import { Order } from './entities/order.entity';
+import { ParcelsGateway } from './parcels.gateway';
+
 
 @Module({
   imports: [
@@ -17,7 +19,7 @@ import { Order } from './entities/order.entity';
     TypeOrmModule.forFeature([Parcel, Order]),
   ],
   controllers: [ParcelsController],
-  providers: [ParcelsService, UsersService],
+  providers: [ParcelsService, UsersService, ParcelsGateway],
   exports: [ParcelsService, TypeOrmModule],
 
 })

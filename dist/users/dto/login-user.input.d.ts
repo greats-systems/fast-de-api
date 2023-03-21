@@ -4,6 +4,6 @@ export declare class LoginMobileUserDTO {
     app: string;
 }
 export declare class LoginUserDTO {
-    phone: string;
+    email: string;
     password: string;
 }

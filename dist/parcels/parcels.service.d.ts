@@ -19,8 +19,8 @@ export declare class ParcelsService {
     getOrdersHistory(userPhone: string): Promise<Array<Order>>;
     getOrdersByUser(userId: string, userRole: string): Promise<Array<Order>>;
     getAllOrders(): Promise<Array<Order>>;
-    create(createParcelDto: CreateParcelDto): Promise<Parcel>;
-    runDelivery(orderID: string, status: string): Promise<Order>;
+    createParcelDeliveryRequest(createParcelDto: CreateParcelDto): Promise<Parcel>;
+    startPickupTrip(orderID: string, driverCoordinates: string): Promise<any>;
     updateOrder(orderID: string, updateOrderDto: UpdateOrderDto): Promise<Order>;
     processOrder(processOrderDTO: ProcessOrderlDto): Promise<Order>;
     driverOrderReject(rejectParcelDto: RejectOrderDto): Promise<any>;

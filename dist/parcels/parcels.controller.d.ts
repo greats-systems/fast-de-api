@@ -6,7 +6,6 @@ export declare class ParcelsController {
     constructor(parcelsService: ParcelsService);
     create(data: any): Promise<Parcel>;
     acceptReject(data: any): Promise<import("./entities/order.entity").Order>;
-    runDelivery(data: any): Promise<import("./entities/order.entity").Order>;
     getOrdersByUser(data: any): Promise<import("./entities/order.entity").Order[]>;
     getOrdersHistory(data: any): Promise<import("./entities/order.entity").Order[]>;
     findAll(): string;

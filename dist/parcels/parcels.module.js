@@ -17,6 +17,7 @@ const notifications_module_1 = require("../notifications/notifications.module");
 const users_service_1 = require("../users/users.service");
 const common_module_1 = require("../common/common.module");
 const order_entity_1 = require("./entities/order.entity");
+const parcels_gateway_1 = require("./parcels.gateway");
 let ParcelsModule = class ParcelsModule {
 };
 ParcelsModule = __decorate([
@@ -28,7 +29,7 @@ ParcelsModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([parcel_entity_1.Parcel, order_entity_1.Order]),
         ],
         controllers: [parcels_controller_1.ParcelsController],
-        providers: [parcels_service_1.ParcelsService, users_service_1.UsersService],
+        providers: [parcels_service_1.ParcelsService, users_service_1.UsersService, parcels_gateway_1.ParcelsGateway],
         exports: [parcels_service_1.ParcelsService, typeorm_1.TypeOrmModule],
     })
 ], ParcelsModule);

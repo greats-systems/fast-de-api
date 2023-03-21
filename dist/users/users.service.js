@@ -19,9 +19,11 @@ const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const bcrypt = require("bcrypt");
 const auth_service_1 = require("../common/auth/auth.service");
+const gateway_connected_user_entity_1 = require("./entities/gateway.connected.user.entity");
 let UsersService = class UsersService {
-    constructor(userRepository, authService) {
+    constructor(userRepository, gatewayConnectedUserRepository, authService) {
         this.userRepository = userRepository;
+        this.gatewayConnectedUserRepository = gatewayConnectedUserRepository;
         this.authService = authService;
     }
     async create(createUserDTO) {
@@ -33,10 +35,80 @@ let UsersService = class UsersService {
         console.log(user);
         return user;
     }
-    async loginUser(loginUserDTO) {
-        const user = await this.authService.validateUser(loginUserDTO.phone, loginUserDTO.password);
+    async createGatewayConnectedUser(gatewayConnectedUserDTO) {
+        const pointObject_orderDriverCoordinates = {
+            type: "Point",
+            coordinates: [JSON.parse(gatewayConnectedUserDTO.location).longitude, JSON.parse(gatewayConnectedUserDTO.location).latitude]
+        };
+        gatewayConnectedUserDTO.location = pointObject_orderDriverCoordinates;
+        const userSchema = this.gatewayConnectedUserRepository.create(gatewayConnectedUserDTO);
+        console.log('create gatewayConnectedUser', userSchema);
+        try {
+            const gatewayConnectedUser = await this.gatewayConnectedUserRepository.save(userSchema);
+            return gatewayConnectedUser;
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+    async update(userId, updateUserInput) {
+        const user = await this.userRepository.preload(Object.assign({ userId: userId }, updateUserInput));
         if (!user) {
-            throw new common_1.BadRequestException(`phone or password are invalid`);
+            throw new common_1.NotFoundException(`User #${userId} not found`);
+        }
+        return this.userRepository.save(user);
+    }
+    async getGatewayConnectedUser(userId) {
+        const user = await this.gatewayConnectedUserRepository.findOne({
+            where: { userId: userId },
+        });
+        if (!user) {
+            let foundIdentity = await this.gatewayConnectedUserRepository.findOne({
+                where: { userId: userId },
+            });
+            console.log('foundIdentity');
+            console.log(foundIdentity);
+            return null;
+        }
+        return user;
+    }
+    async updateGatewayConnectedUserLocation(userLocation) {
+        const user = await this.getGatewayConnectedUser(userLocation.userId);
+        const pointObject_location = {
+            type: "Point",
+            coordinates: [userLocation.longitude, userLocation.latitude]
+        };
+        user.location = pointObject_location;
+        const gatewayConnectedUser = await this.gatewayConnectedUserRepository.save(user);
+        return gatewayConnectedUser;
+    }
+    async getDriverByRadius(location) {
+        console.log('${location.coordinates[0]}, ${location.coordinates[1]}');
+        console.log(location);
+        const drivers = await this.gatewayConnectedUserRepository.query(`SELECT * , ST_Distance('SRID=4326;POINT(${location.coordinates[0]} ${location.coordinates[1]})'::geometry, location) AS dist FROM gateway_connected_user  WHERE role='driver';`);
+        const driver = drivers[1];
+        console.log('getDriverByRadius driver');
+        console.log(driver);
+        return driver;
+    }
+    async getGatewayConnectedDriver(userId) {
+        const user = await this.gatewayConnectedUserRepository.findOne({
+            where: { userId: '5cb96dd9-0a44-4433-9b14-7756c317b85b', role: 'driver' },
+        });
+        if (!user) {
+            let foundIdentity = await this.gatewayConnectedUserRepository.findOne({
+                where: { userId: userId },
+            });
+            console.log('foundIdentity');
+            console.log(foundIdentity);
+            throw new common_1.NotFoundException(`Driver of id #${userId} not found`);
+        }
+        return user;
+    }
+    async loginUser(loginUserDTO) {
+        const user = await this.authService.validateUser(loginUserDTO.email, loginUserDTO.password);
+        if (!user) {
+            throw new common_1.BadRequestException(`email or password are invalid`);
         }
         else {
             return this.authService.generateUserCredentials(user);
@@ -99,13 +171,6 @@ let UsersService = class UsersService {
         }
         return users;
     }
-    async update(userId, updateUserInput) {
-        const user = await this.userRepository.preload(Object.assign({ userId: userId }, updateUserInput));
-        if (!user) {
-            throw new common_1.NotFoundException(`User #${userId} not found`);
-        }
-        return this.userRepository.save(user);
-    }
     async findAll() {
         return await this.userRepository.find();
     }
@@ -137,11 +202,10 @@ let UsersService = class UsersService {
         const decodedser = await this.authService.decodeUserToken(token);
         let user;
         if (decodedser) {
+            console.log('decodedser', decodedser);
             user = await this.userRepository.findOne({
                 where: { userId: decodedser.sub },
             });
-            console.log('getUserProfile');
-            console.log(decodedser.sub);
         }
         else {
             throw new common_1.NotFoundException(`User token #${token} not valid`);
@@ -184,8 +248,10 @@ let UsersService = class UsersService {
 UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => auth_service_1.AuthService))),
+    __param(1, (0, typeorm_1.InjectRepository)(gateway_connected_user_entity_1.GatewayConnectedUser)),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => auth_service_1.AuthService))),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         auth_service_1.AuthService])
 ], UsersService);
 exports.UsersService = UsersService;

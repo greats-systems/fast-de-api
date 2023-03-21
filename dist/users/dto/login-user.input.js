@@ -32,9 +32,9 @@ exports.LoginMobileUserDTO = LoginMobileUserDTO;
 let LoginUserDTO = class LoginUserDTO {
 };
 __decorate([
-    (0, graphql_1.Field)(() => String, { description: 'phone of the user' }),
+    (0, graphql_1.Field)(() => String, { description: 'email of the user' }),
     __metadata("design:type", String)
-], LoginUserDTO.prototype, "phone", void 0);
+], LoginUserDTO.prototype, "email", void 0);
 __decorate([
     (0, graphql_1.Field)(() => String, { description: 'password of the user' }),
     __metadata("design:type", String)

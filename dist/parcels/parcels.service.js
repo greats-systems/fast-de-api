@@ -31,6 +31,23 @@ let ParcelsService = class ParcelsService {
         this.notificationsService = notificationsService;
     }
     async createOrder(createOrderDto) {
+        console.log('createOrderDto', createOrderDto);
+        const pointObject_orderDriverCoordinates = {
+            type: "Point",
+            coordinates: [createOrderDto.orderDriverCoordinates.latitude, createOrderDto.orderDriverCoordinates.longitude]
+        };
+        createOrderDto.orderDriverCoordinates = pointObject_orderDriverCoordinates;
+        const pointObject_orderPickupCoordinates = {
+            type: "Point",
+            coordinates: [createOrderDto.orderPickupCoordinates.coordinates[0], createOrderDto.orderPickupCoordinates.coordinates[1]]
+        };
+        createOrderDto.orderPickupCoordinates = pointObject_orderPickupCoordinates;
+        const pointObject_orderDeliveryCoordinates = {
+            type: "Point",
+            coordinates: [createOrderDto.orderDeliveryCoordinates.coordinates[0], createOrderDto.orderDeliveryCoordinates.coordinates[1]]
+        };
+        createOrderDto.orderDeliveryCoordinates = pointObject_orderDeliveryCoordinates;
+        console.log('processOrder createOrderDto', createOrderDto);
         const orderSchema = this.orderRepository.create(createOrderDto);
         const order = await this.orderRepository.save(orderSchema);
         return order;
@@ -70,79 +87,49 @@ let ParcelsService = class ParcelsService {
         const orders = await this.orderRepository.find();
         return orders;
     }
-    async create(createParcelDto) {
+    async createParcelDeliveryRequest(createParcelDto) {
         console.log('createParcelDto');
         console.log(createParcelDto);
+        const pointObject_exactPickupCoordinates = {
+            type: "Point",
+            coordinates: [JSON.parse(createParcelDto.exactPickupCoordinates).latitude, JSON.parse(createParcelDto.exactPickupCoordinates).longitude]
+        };
+        createParcelDto.exactPickupCoordinates = pointObject_exactPickupCoordinates;
+        const pointObject_exactDeliveryCoordinates = {
+            type: "Point",
+            coordinates: [JSON.parse(createParcelDto.exactDeliveryCoordinates).latitude, JSON.parse(createParcelDto.exactDeliveryCoordinates).longitude]
+        };
+        createParcelDto.exactDeliveryCoordinates = pointObject_exactDeliveryCoordinates;
+        console.log('updated createParcelDto', createParcelDto);
         const parcelSchema = this.parcelRepository.create(createParcelDto);
         const parcel = await this.parcelRepository.save(parcelSchema);
         console.log('new parcel');
         console.log(parcel);
-        let driverID = '';
-        let rejectedDriverIds = Array(driverID);
-        const drivers = await this.userService.getDrivers(rejectedDriverIds);
-        const driver = drivers[0];
-        console.log('driver');
-        console.log(driver.phone);
-        const driverPhone = driver.phone;
-        let pushToken;
-        console.log('get ExpoPushToken value');
-        console.log(pushToken);
-        await this.notificationsService.getExpoPushToken(driverPhone).then((value) => {
-            console.log('value');
-            console.log(value);
-            pushToken = value;
-        });
-        console.log('Got driver pushToken');
-        console.log(pushToken);
-        if (Expo.isExpoPushToken(pushToken)) {
-            console.log('send PushNotification for  Ride Request');
-            let category = {
-                type: 'request',
-                title: 'driver Ride Request'
-            };
-            parcel['notificationCategory'] = category;
-            const message = JSON.stringify(parcel);
-            await sendPushNotification(pushToken, message, category);
-        }
         return parcel;
     }
-    async runDelivery(orderID, status) {
-        console.log('orderID');
-        console.log(orderID);
+    async startPickupTrip(orderID, driverCoordinates) {
+        console.log('startPickupTrip driverCoordinates');
+        console.log(driverCoordinates);
+        const pointObject_driverCoordinates = {
+            type: "Point",
+            coordinates: [JSON.parse(driverCoordinates).longitude, JSON.parse(driverCoordinates).latitude]
+        };
         let order = await this.findOneByOrderID(orderID);
-        console.log('order');
-        console.log(order);
-        order['orderStatus'] = status;
+        order['orderDriverCoordinates'] = pointObject_driverCoordinates;
+        order['orderStatus'] = 'pickup';
         let updatedOrder = await this.updateOrder(orderID, order);
         console.log('updatedOrder');
         console.log(updatedOrder);
         const orderOwner = await this.userService.findOne((await order).orderOwnerID);
-        console.log('orderOwner');
-        console.log(orderOwner);
-        console.log((await orderOwner).phone);
-        const orderOwnerPhone = (await orderOwner).phone;
-        let pushToken;
-        console.log('get ExpoPushToken value');
-        console.log(pushToken);
-        await this.notificationsService.getExpoPushToken(orderOwnerPhone).then((value) => {
-            console.log('value');
-            console.log(value);
-            pushToken = value;
-        });
-        updatedOrder['orderDriverCoordinates'] = JSON.parse(updatedOrder.orderDriverCoordinates);
-        updatedOrder['orderPickupCoordinates'] = JSON.parse(updatedOrder.orderPickupCoordinates);
-        updatedOrder['orderDeliveryCoordinates'] = JSON.parse(updatedOrder.orderDeliveryCoordinates);
-        if (Expo.isExpoPushToken(pushToken)) {
-            console.log('send PushNotification');
-            let category = {
-                type: 'order',
-                title: `order ${status} notification`
-            };
-            updatedOrder['notificationCategory'] = category;
-            const message = JSON.stringify(updatedOrder);
-            await sendPushNotification(pushToken, message, category);
-        }
-        return updatedOrder;
+        const orderOwnerPhone = orderOwner.phone;
+        let startPickupTripNotification = {
+            orderDriverCoordinates: updatedOrder.orderDriverCoordinates,
+            orderPickupCoordinates: updatedOrder.orderPickupCoordinates,
+            orderDeliveryCoordinates: updatedOrder.orderDeliveryCoordinates,
+            orderOwnerPhone: orderOwner.phone,
+            orderOwnerID: orderOwner.userId
+        };
+        return startPickupTripNotification;
     }
     async updateOrder(orderID, updateOrderDto) {
         const order = await this.orderRepository.preload(Object.assign({ orderID: orderID }, updateOrderDto));
@@ -152,70 +139,40 @@ let ParcelsService = class ParcelsService {
         return this.orderRepository.save(order);
     }
     async processOrder(processOrderDTO) {
-        console.log('driver accepted');
-        console.log(processOrderDTO);
         let parcel = await this.findOneByPackageID(processOrderDTO.packageID);
         const parcelOwner = await this.userService.findOne((await parcel).packageOwnerID);
-        console.log('parcelOwner');
-        console.log(parcelOwner);
-        console.log((await parcelOwner).phone);
-        const parcelOwnerPhone = (await parcelOwner).phone;
-        let pushToken;
-        console.log('get ExpoPushToken value');
-        console.log(pushToken);
-        await this.notificationsService.getExpoPushToken(parcelOwnerPhone).then((value) => {
-            console.log('value');
-            console.log(value);
-            pushToken = value;
-        });
-        console.log('Got driver pushToken');
-        console.log(pushToken);
         const acceptingDriver = await this.userService.findOneByPhone(processOrderDTO.driverPhone);
-        console.log(acceptingDriver);
+        console.log('acceptingDriver');
         (parcel).packageDriverID = acceptingDriver.userId;
-        if (Expo.isExpoPushToken(pushToken)) {
-            console.log('send PushNotification for  Parcel Accept');
-            const LATITUDE = 37.78825;
-            const LONGITUDE = -122.4324;
-            parcel = await this.updateParcel(processOrderDTO.packageID, parcel);
-            let countryCode = acceptingDriver.phone.slice(0, 3);
-            let newOrder = {
-                orderParcelID: parcel.packageID,
-                orderDate: Date.now().toString(),
-                orderType: parcel.packageType,
-                orderPaymentStatus: 'not-paid',
-                orderPaymentMethod: parcel.paymentMethod === null ? 'cash on delivery' : parcel.paymentMethod,
-                orderCountry: countryCode && countryCode === '+26' ? 'zw' : 'za',
-                orderDriverID: parcel.packageDriverID,
-                orderDriverFirstName: acceptingDriver.firstName,
-                orderDriverLastName: acceptingDriver.lastName,
-                orderDriverCoordinates: JSON.parse(processOrderDTO.driverCoordinates),
-                orderOwnerID: parcelOwner.userId,
-                orderOwnerFirstName: parcelOwner.firstName,
-                orderOwnerLastName: parcelOwner.lastName,
-                orderPickupTime: processOrderDTO.orderPickupTime,
-                orderPickupCoordinates: JSON.parse(parcel.exactPickupCoordinates),
-                orderPickupAddress: parcel.exactPickupAddress,
-                orderPickupDistance: processOrderDTO.packagePickupDistance,
-                orderDeliveryDistance: parcel.packageDeliveryDistance,
-                orderDeliveryCoordinates: JSON.parse(parcel.exactDeliveryCoordinates),
-                orderDeliveryAddress: parcel.exactDeliveryAddress,
-                orderDeliveryFee: parcel.packageDeliveryFee,
-                orderStatus: 'accepted',
-            };
-            console.log(newOrder);
-            let order = await this.createOrder(newOrder);
-            console.log('new order');
-            console.log(order);
-            let category = {
-                type: 'accept',
-                title: 'Delivery Order Created'
-            };
-            order['notificationCategory'] = category;
-            const message = JSON.stringify(order);
-            await sendPushNotification(pushToken, message, category);
-            return order;
-        }
+        parcel = await this.updateParcel(processOrderDTO.packageID, parcel);
+        console.log('processOrder parcel', parcel);
+        let countryCode = acceptingDriver.phone.slice(0, 3);
+        let newOrder = {
+            orderParcelID: parcel.packageID,
+            orderDate: Date.now().toString(),
+            orderType: parcel.packageType,
+            orderPaymentStatus: 'not-paid',
+            orderPaymentMethod: parcel.paymentMethod === null ? 'cash on delivery' : parcel.paymentMethod,
+            orderCountry: countryCode && countryCode === '+26' ? 'zw' : 'za',
+            orderDriverID: parcel.packageDriverID,
+            orderDriverFirstName: acceptingDriver.firstName,
+            orderDriverLastName: acceptingDriver.lastName,
+            orderDriverCoordinates: processOrderDTO.driverCoordinates,
+            orderOwnerID: parcelOwner.userId,
+            orderOwnerFirstName: parcelOwner.firstName,
+            orderOwnerLastName: parcelOwner.lastName,
+            orderPickupTime: processOrderDTO.orderPickupTime,
+            orderPickupCoordinates: parcel.exactPickupCoordinates,
+            orderPickupAddress: parcel.exactPickupAddress,
+            orderPickupDistance: parcel.exactPickupCoordinates,
+            orderDeliveryDistance: parcel.packageDeliveryDistance,
+            orderDeliveryCoordinates: parcel.exactDeliveryCoordinates,
+            orderDeliveryAddress: parcel.exactDeliveryAddress,
+            orderDeliveryFee: parcel.packageDeliveryFee,
+            orderStatus: 'accepted',
+        };
+        let order = await this.createOrder(newOrder);
+        return order;
     }
     async driverOrderReject(rejectParcelDto) {
         console.log('driver rejected');

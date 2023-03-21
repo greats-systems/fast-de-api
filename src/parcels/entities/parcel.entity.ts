@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Point } from 'geojson'
+
 @Entity()
 export class Parcel {
     @PrimaryGeneratedColumn('uuid')
@@ -24,13 +26,27 @@ export class Parcel {
     @Column()
     exactDeliveryAddress: string;
     @Column({nullable: true})
-    exactPickupCoordinates: string;
-    @Column({nullable: true})
-    exactDeliveryCoordinates: string;
-    @Column({nullable: true})
     packageDeliveryFee: string;
     @Column({nullable: true})
     paymentMethod: string;
     @Column({nullable: true})
     packageDeliveryDistance: string;
+
+        // handling geo data
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    exactPickupCoordinates: Point;
+
+
+    @Index({spatial : true})
+    @Column({
+        type:'geometry',
+        spatialFeatureType:'Point',
+        srid: 4326,
+        nullable: true})
+    exactDeliveryCoordinates: Point;
 }

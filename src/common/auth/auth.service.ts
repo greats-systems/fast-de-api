@@ -64,7 +64,7 @@ export class AuthService {
     console.log('loginUserInput')
     console.log(loginUserInput)
     const user = await this.validateUser(
-      loginUserInput.phone,
+      loginUserInput.email,
       loginUserInput.password
     );
     if (!user) {
@@ -139,10 +139,10 @@ export class AuthService {
     return null;
   }
 
-  async validateUser(phone: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<any> {
     console.log('getting User')
-    console.log(phone)
-    const user = await this.usersService.findOneByPhone(phone);
+    console.log(email)
+    const user = await this.usersService.findOneByEmail(email);
     console.log(user)
     if (user) {
       console.log('User found')
